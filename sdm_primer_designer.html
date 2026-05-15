@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDM Primer Designer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f4f8;
+    color: #1a202c;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a6b3c 0%, #0d4f2c 60%, #0a3d22 100%);
+    color: white;
+    padding: 28px 24px 22px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+  .header .subtitle {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    opacity: 0.85;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Container */
+  .container { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* Section cards */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.06);
+    padding: 24px 24px 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Step header */
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .step-badge {
+    background: #1a6b3c;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .step-title { font-size: 1.1rem; font-weight: 600; color: #1a202c; }
+
+  /* Template section */
+  textarea {
+    width: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.88rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 90px;
+    color: #1a202c;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { outline: none; border-color: #1a6b3c; }
+
+  .tmpl-meta { display: flex; gap: 16px; margin-top: 7px; font-size: 0.82rem; color: #6b7280; }
+  .tmpl-meta span { font-weight: 600; color: #374151; }
+
+  .field-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .field-label { font-size: 0.88rem; color: #374151; font-weight: 500; }
+  input[type=number] {
+    width: 80px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 0.88rem;
+    color: #1a202c;
+  }
+  input[type=number]:focus { outline: none; border-color: #1a6b3c; }
+
+  /* Mutations section */
+  .mut-buttons { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .btn-add-dna, .btn-add-aa {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-add-dna { background: #dbeafe; color: #1d4ed8; }
+  .btn-add-dna:hover { background: #bfdbfe; }
+  .btn-add-aa { background: #fce7f3; color: #be185d; }
+  .btn-add-aa:hover { background: #fbcfe8; }
+
+  .mut-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .badge-dna { background: #dbeafe; color: #1d4ed8; }
+  .badge-aa  { background: #fce7f3; color: #be185d; }
+
+  .mut-row input[type=text], .mut-row input[type=number] {
+    width: 72px; padding: 5px 7px; font-size: 0.84rem;
+    border: 1.5px solid #d1d5db; border-radius: 5px; color: #1a202c;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .mut-row input[type=number] { width: 64px; font-family: inherit; }
+  .mut-row .field-hint { font-size: 0.75rem; color: #9ca3af; }
+  .btn-remove {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #fca5a5;
+    color: #ef4444;
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+  .btn-remove:hover { background: #fee2e2; }
+
+  /* Design button */
+  .design-section { text-align: center; }
+  .btn-design {
+    background: linear-gradient(135deg, #1a6b3c, #0d5030);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 48px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 8px rgba(26,107,60,0.35);
+    transition: transform 0.12s, box-shadow 0.12s;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-design:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,107,60,0.45); }
+  .btn-design:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Results */
+  #results-section { display: none; margin-top: 24px; }
+  .results-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .results-title { font-size: 1.25rem; font-weight: 700; color: #1a202c; }
+  .btn-download {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1.5px solid #86efac;
+    border-radius: 7px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-download:hover { background: #dcfce7; }
+
+  /* Primer card */
+  .primer-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .primer-card-header {
+    padding: 14px 20px;
+    background: #f0fdf4;
+    border-bottom: 1px solid #d1fae5;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .primer-card-header .card-title { font-weight: 700; font-size: 0.98rem; color: #166534; }
+  .mut-chip {
+    padding: 2px 9px;
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 12px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    border: 1px solid #86efac;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .primer-card-body { padding: 18px 20px; }
+
+  /* Primer sub-section label */
+  .primer-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+  .primer-label:first-child { margin-top: 0; }
+
+  /* Seq display block */
+  .seq-block {
+    background: #1a202c;
+    border-radius: 8px;
+    padding: 12px 14px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .seq-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    color: #a0f0b0;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+  .seq-display .mut-hl {
+    background: #f59e0b;
+    color: #1a202c;
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .seq-display .tmpl-base { color: #6bbf80; font-size: 0.78em; }
+
+  .btn-copy {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #d1fae5;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-copy:hover { background: rgba(255,255,255,0.22); }
+  .btn-copy.copied { background: rgba(34,197,94,0.35); color: #86efac; }
+
+  .plain-seq {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.83rem;
+    color: #374151;
+    word-break: break-all;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .stat-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    padding: 7px 10px;
+    text-align: center;
+  }
+  .stat-box .stat-val {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a202c;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .stat-box .stat-val.tm-ok  { color: #166534; }
+  .stat-box .stat-val.tm-bad { color: #991b1b; }
+  .stat-box .stat-key { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
+
+  .tmpl-range { font-size: 0.8rem; color: #6b7280; margin-bottom: 10px; }
+  .tmpl-range span { font-weight: 600; color: #374151; font-family: 'Courier New', Courier, monospace; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 14px 0; }
+
+  /* Validation grid */
+  .validation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  @media (max-width: 600px) { .validation-grid { grid-template-columns: 1fr; } }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 7px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+  }
+  .check-ok  { background: #f0fdf4; color: #166534; }
+  .check-fail { background: #fef2f2; color: #991b1b; }
+  .check-icon { flex-shrink: 0; font-weight: 700; }
+
+  /* Codon table */
+  .codon-section { margin-top: 12px; }
+  .codon-toggle {
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #374151;
+  }
+  .codon-toggle:hover { background: #f3f4f6; }
+  .codon-table-wrap { display: none; margin-top: 8px; overflow-x: auto; }
+  .codon-table-wrap.open { display: block; }
+  table.codon-tbl {
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    width: auto;
+    min-width: 280px;
+  }
+  table.codon-tbl th, table.codon-tbl td {
+    padding: 5px 12px;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  table.codon-tbl th { background: #f3f4f6; font-weight: 600; }
+  table.codon-tbl tr.selected-codon { background: #fef3c7; }
+  table.codon-tbl td.codon-label { font-weight: 700; color: #1a6b3c; }
+
+  /* Error box */
+  .error-box {
+    background: #fef2f2;
+    border: 1.5px solid #fca5a5;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #991b1b;
+    font-size: 0.88rem;
+    margin-bottom: 12px;
+  }
+  .not-found-box {
+    background: #fffbeb;
+    border: 1.5px solid #fcd34d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #92400e;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+
+  /* Combined section title */
+  .combined-header {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1.5px solid #fcd34d;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .combined-header .combined-title { font-weight: 700; color: #92400e; font-size: 0.95rem; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.5rem; }
+    .mut-row { flex-direction: column; align-items: flex-start; }
+    .btn-remove { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🧬 SDM Primer Designer</h1>
+  <div class="subtitle">Tm = 81.5 + 0.41(%GC) &minus; 675/N &minus; %mismatch &nbsp;|&nbsp; E. coli K-12 codon optimisation &nbsp;|&nbsp; Non-overlapping double-primer design</div>
+</div>
+
+<div class="container">
+
+  <!-- Step 1 -->
+  <div class="card">
+    <div class="step-header">
+      <div class="step-badge">1</div>
+      <div class="step-title">Template DNA Sequence</div>
+    </div>
+    <textarea id="tmpl-input" placeholder="Paste your template DNA sequence here (5'→3', ATGCN only)..." rows="4" oninput="updateTmplMeta()"></textarea>
+    <div class="tmpl-meta">
+      <div>Length: <span id="tmpl-len">0</span> bp</div>
+      <div>%GC: <span id="tmpl-gc">0.0</span>%</div>
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="cds-start">CDS start position (1-based nt, used for AA mutation mode):</label>
+      <input type="number" id="cds-start" value="1" min="1">
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="card">
+    <div class="step-header">
+      <div class="step-badge">2</div>
+      <div class="step-title">Mutations</div>
+    </div>
+    <div class="mut-buttons">
+      <button class="btn-add-dna" onclick="addDnaRow()">+ Add DNA Mutation</button>
+      <button class="btn-add-aa"  onclick="addAaRow()">+ Add AA Mutation</button>
+    </div>
+    <div id="mut-list"></div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="card design-section">
+    <div class="step-header" style="justify-content:center; margin-bottom:0;">
+      <div class="step-badge">3</div>
+      <div class="step-title">Design Primers</div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn-design" id="btn-design" onclick="runDesign()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-design-text">Design Primers</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section">
+    <div class="results-header">
+      <div class="results-title">Results</div>
+      <button class="btn-download" onclick="downloadResults()">&#11015; Download Results</button>
+    </div>
+    <div id="results-body"></div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// =========================================================
+//  CODON TABLES
+// =========================================================
+const CODON_TABLE = {
+  TTT:'F', TTC:'F',
+  TTA:'L', TTG:'L', CTT:'L', CTC:'L', CTA:'L', CTG:'L',
+  ATT:'I', ATC:'I', ATA:'I',
+  ATG:'M',
+  GTT:'V', GTC:'V', GTA:'V', GTG:'V',
+  TCT:'S', TCC:'S', TCA:'S', TCG:'S', AGT:'S', AGC:'S',
+  CCT:'P', CCC:'P', CCA:'P', CCG:'P',
+  ACT:'T', ACC:'T', ACA:'T', ACG:'T',
+  GCT:'A', GCC:'A', GCA:'A', GCG:'A',
+  TAT:'Y', TAC:'Y',
+  TAA:'*', TAG:'*', TGA:'*',
+  CAT:'H', CAC:'H',
+  CAA:'Q', CAG:'Q',
+  AAT:'N', AAC:'N',
+  AAA:'K', AAG:'K',
+  GAT:'D', GAC:'D',
+  GAA:'E', GAG:'E',
+  TGT:'C', TGC:'C',
+  TGG:'W',
+  CGT:'R', CGC:'R', CGA:'R', CGG:'R', AGA:'R', AGG:'R',
+  GGT:'G', GGC:'G', GGA:'G', GGG:'G',
+};
+
+const ECOLI_CODON_FREQ = {
+  TTT:22.0, TTC:17.4,
+  TTA:14.1, TTG:13.6, CTT:11.8, CTC:10.4, CTA:3.6,  CTG:52.4,
+  ATT:29.0, ATC:25.1, ATA:7.5,
+  ATG:27.4,
+  GTT:18.1, GTC:15.3, GTA:10.6, GTG:26.1,
+  TCT:9.0,  TCC:8.7,  TCA:7.2,  TCG:8.5,  AGT:8.7,  AGC:16.0,
+  CCT:7.3,  CCC:5.0,  CCA:8.5,  CCG:23.3,
+  ACT:9.5,  ACC:23.3, ACA:7.5,  ACG:14.1,
+  GCT:15.4, GCC:26.1, GCA:21.1, GCG:33.5,
+  TAT:16.3, TAC:12.3,
+  TAA:2.0,  TAG:0.3,  TGA:1.1,
+  CAT:13.3, CAC:9.0,
+  CAA:15.4, CAG:28.9,
+  AAT:18.4, AAC:21.5,
+  AAA:33.6, AAG:10.2,
+  GAT:31.5, GAC:19.2,
+  GAA:39.1, GAG:17.8,
+  TGT:5.0,  TGC:6.3,
+  TGG:15.3,
+  CGT:20.6, CGC:22.3, CGA:3.6,  CGG:5.4,  AGA:2.1,  AGG:1.2,
+  GGT:24.4, GGC:29.2, GGA:8.0,  GGG:11.0,
+};
+
+const AA_NAMES = {
+  A:'Ala', R:'Arg', N:'Asn', D:'Asp', C:'Cys',
+  Q:'Gln', E:'Glu', G:'Gly', H:'His', I:'Ile',
+  L:'Leu', K:'Lys', M:'Met', F:'Phe', P:'Pro',
+  S:'Ser', T:'Thr', W:'Trp', Y:'Tyr', V:'Val',
+  '*':'Stop',
+};
+
+// =========================================================
+//  CORE DNA FUNCTIONS
+// =========================================================
+function revcomp(seq) {
+  const comp = {A:'T', T:'A', G:'C', C:'G', N:'N', a:'t', t:'a', g:'c', c:'g', n:'n'};
+  return seq.split('').reverse().map(b => comp[b] || b).join('');
+}
+
+function validateDNA(seq) {
+  seq = seq.toUpperCase().replace(/[\s\r\n\t]/g, '');
+  const bad = seq.split('').filter(b => !'ATGCN'.includes(b));
+  if (bad.length > 0) {
+    const uniq = [...new Set(bad)].sort().join(', ');
+    throw new Error('Invalid DNA characters: ' + uniq);
+  }
+  return seq;
+}
+
+function calcTm(seq, nMm) {
+  const N = seq.length;
+  if (N === 0) return -Infinity;
+  const gc = seq.toUpperCase().split('').filter(b => 'GC'.includes(b)).length;
+  return 81.5 + 0.41 * (gc * 100.0 / N) - 675.0 / N - (nMm * 100.0 / N);
+}
+
+function gcPct(seq) {
+  if (!seq.length) return 0.0;
+  const gc = seq.toUpperCase().split('').filter(b => 'GC'.includes(b)).length;
+  return gc / seq.length * 100.0;
+}
+
+function countMm(orig, newSeq) {
+  const n = Math.min(orig.length, newSeq.length);
+  let subs = 0;
+  for (let i = 0; i < n; i++) {
+    if (orig[i].toUpperCase() !== newSeq[i].toUpperCase()) subs++;
+  }
+  return subs + Math.abs(orig.length - newSeq.length);
+}
+
+// =========================================================
+//  CODON HELPERS
+// =========================================================
+function translateCodon(codon) {
+  return CODON_TABLE[codon.toUpperCase()] || '?';
+}
+
+function ecoliCodonsRanked(aa) {
+  aa = aa.toUpperCase();
+  const result = [];
+  for (const [codon, freq] of Object.entries(ECOLI_CODON_FREQ)) {
+    if (CODON_TABLE[codon] === aa) result.push([codon, freq]);
+  }
+  result.sort((a, b) => b[1] - a[1]);
+  return result;
+}
+
+function bestEcoliCodon(aa) {
+  const ranked = ecoliCodonsRanked(aa);
+  if (!ranked.length) throw new Error("Unknown amino acid: '" + aa + "'");
+  return ranked[0][0];
+}
+
+function aaMutToDna(template, aaPos, origAa, newAa, cdsStart) {
+  const T = validateDNA(template);
+  origAa = origAa.toUpperCase();
+  newAa  = newAa.toUpperCase();
+
+  if (!(origAa in AA_NAMES)) throw new Error("Unknown original amino acid: '" + origAa + "'");
+  if (!(newAa in AA_NAMES))  throw new Error("Unknown new amino acid: '" + newAa + "'");
+  if (newAa === '*') throw new Error("Stop codon as target is not supported");
+
+  const ntPos = cdsStart + (aaPos - 1) * 3;  // 1-based
+  const cs = ntPos - 1;
+  const ce = cs + 3;
+
+  if (ce > T.length) throw new Error(
+    'AA position ' + aaPos + ' (nt ' + ntPos + '-' + (ntPos+2) + ') exceeds template length ' + T.length
+  );
+
+  const origCodon = T.slice(cs, ce);
+  const tmplAa = translateCodon(origCodon);
+
+  if (tmplAa !== origAa) throw new Error(
+    'AA pos ' + aaPos + ': template codon \'' + origCodon + '\' = ' + tmplAa +
+    ' (' + (AA_NAMES[tmplAa]||'?') + '), expected ' + origAa + ' (' + (AA_NAMES[origAa]||'?') + ')'
+  );
+
+  const newCodon = bestEcoliCodon(newAa);
+
+  const info = {
+    aaPos, origAa, newAa,
+    origCodon, newCodon,
+    ranked: ecoliCodonsRanked(newAa),
+    ntPos, cdsStart,
+  };
+  return { ntPos, origCodon, newCodon, info };
+}
+
+// =========================================================
+//  PRIMER CANDIDATE GENERATION
+// =========================================================
+function primerCandidates(tmpl, ms, me, mut, nMm, fwd, maxLen=70) {
+  const ML5 = 4, ML3 = 8;
+  const results = [];
+  const maxFl5 = Math.min(ms, maxLen);
+  const maxFl3 = Math.min(fwd ? (tmpl.length - me) : ms, maxLen);
+
+  for (let fl5 = ML5; fl5 <= maxFl5; fl5++) {
+    for (let fl3 = ML3; fl3 <= maxFl3; fl3++) {
+      let s, e;
+      if (fwd) { s = ms - fl5; e = me + fl3; }
+      else     { s = ms - fl3; e = me + fl5; }
+
+      if (s < 0 || e > tmpl.length) continue;
+
+      const region = tmpl.slice(s, ms) + mut + tmpl.slice(me, e);
+      const seq = fwd ? region : revcomp(region);
+
+      if (!'GC'.includes(seq[seq.length - 1])) continue;
+
+      const tm = calcTm(seq, nMm);
+      if (tm >= 78.0) {
+        results.push({
+          seq, tm: Math.round(tm * 100) / 100,
+          len: seq.length,
+          gc:  Math.round(gcPct(seq) * 10) / 10,
+          fl5, fl3,
+          ts: s + 1, te: e,
+        });
+      }
+    }
+  }
+
+  results.sort((a, b) => a.len - b.len);
+  return results;
+}
+
+function findPrimers(tmpl, ms, me, mut, nMm, maxLen=70) {
+  const fwdList = primerCandidates(tmpl, ms, me, mut, nMm, true,  maxLen);
+  const revList = primerCandidates(tmpl, ms, me, mut, nMm, false, maxLen);
+
+  let bestFwd = null, bestRev = null;
+  let bestTotal = Infinity;
+
+  for (const f of fwdList) {
+    if (revList.length > 0 && f.len + revList[0].len >= bestTotal) continue;
+    for (const r of revList) {
+      if (f.len + r.len >= bestTotal) break;
+      if (f.fl3 < r.fl5 + 8) continue;
+      if (r.fl3 < f.fl5 + 8) continue;
+      bestTotal = f.len + r.len;
+      bestFwd = f; bestRev = r;
+    }
+  }
+
+  return { fwd: bestFwd, rev: bestRev };
+}
+
+// =========================================================
+//  SINGLE MUTATION DESIGN
+// =========================================================
+function designSingle(template, pos, orig, mut) {
+  const T = validateDNA(template);
+  const O = orig ? validateDNA(orig) : '';
+  const M = mut  ? validateDNA(mut)  : '';
+
+  const ms = pos - 1;
+  const me = ms + O.length;
+
+  if (me > T.length) throw new Error(
+    'Position ' + pos + ' + length ' + O.length + ' exceeds template (' + T.length + ' bp)'
+  );
+  if (O && T.slice(ms, me) !== O) throw new Error(
+    'Template[' + pos + ':' + (pos + O.length - 1) + '] = \'' + T.slice(ms,me) + '\' but original given = \'' + O + '\''
+  );
+
+  const nMm = countMm(O, M);
+  const { fwd, rev } = findPrimers(T, ms, me, M, nMm);
+
+  const fwdNonOverlap = (fwd && rev) ? (fwd.fl3 - rev.fl5) : 0;
+  const revNonOverlap = (fwd && rev) ? (rev.fl3 - fwd.fl5) : 0;
+  const nonoverlapOk  = fwdNonOverlap >= 8 && revNonOverlap >= 8;
+
+  return {
+    tmplLen: T.length, pos, orig: O, mut: M,
+    nMm, fwd, rev,
+    nonoverlapOk, fwdNonOverlap, revNonOverlap,
+    codonInfo: null,
+  };
+}
+
+// =========================================================
+//  COMBINED MULTI-MUTATION DESIGN
+// =========================================================
+function primerCandidatesCombined(T, muts, nMm, fwd, maxLen=70) {
+  // muts: [{ms, me, orig, newSeq}, ...] sorted by ms
+  const ML5 = 4, ML3 = 8;
+  const firstMs = muts[0].ms;
+  const lastMe  = muts[muts.length - 1].me;
+  const cands = [];
+
+  const lim5 = Math.min(fwd ? firstMs : (T.length - lastMe), maxLen);
+  const lim3 = Math.min(fwd ? (T.length - lastMe) : firstMs, maxLen);
+
+  function buildSeq(fl5, fl3) {
+    let s, e;
+    if (fwd) { s = firstMs - fl5; e = lastMe  + fl3; }
+    else     { s = firstMs - fl3; e = lastMe  + fl5; }
+    if (s < 0 || e > T.length) return null;
+
+    let region = T.slice(s, muts[0].ms);
+    for (let i = 0; i < muts.length; i++) {
+      region += muts[i].newSeq;
+      if (i < muts.length - 1) region += T.slice(muts[i].me, muts[i+1].ms);
+    }
+    region += T.slice(muts[muts.length-1].me, e);
+    return { seq: fwd ? region : revcomp(region), s, e };
+  }
+
+  for (let fl5 = ML5; fl5 <= lim5; fl5++) {
+    for (let fl3 = ML3; fl3 <= lim3; fl3++) {
+      const res = buildSeq(fl5, fl3);
+      if (!res) continue;
+      const { seq, s, e } = res;
+      if (!'GC'.includes(seq[seq.length - 1])) continue;
+      const tm = calcTm(seq, nMm);
+      if (tm >= 78.0) {
+        cands.push({
+          seq, tm: Math.round(tm * 100) / 100,
+          len: seq.length,
+          gc:  Math.round(gcPct(seq) * 10) / 10,
+          fl5, fl3,
+          ts: s + 1, te: e,
+        });
+      }
+    }
+  }
+
+  cands.sort((a, b) => a.len - b.len);
+  return cands;
+}
+
+function designCombined(template, mutations) {
+  // mutations: [{pos, orig, newSeq}] (1-based pos)
+  const T = validateDNA(template);
+
+  const muts = mutations.map(({ pos, orig, newSeq }) => {
+    const O = orig   ? validateDNA(orig)   : '';
+    const M = newSeq ? validateDNA(newSeq) : '';
+    const ms = pos - 1;
+    const me = ms + O.length;
+    if (me > T.length) throw new Error('Position ' + pos + ' + length ' + O.length + ' exceeds template');
+    if (O && T.slice(ms, me) !== O) throw new Error('Position ' + pos + ': template \'' + T.slice(ms,me) + '\' != expected \'' + O + '\'');
+    return { ms, me, orig: O, newSeq: M };
+  });
+
+  muts.sort((a, b) => a.ms - b.ms);
+
+  for (let i = 0; i < muts.length - 1; i++) {
+    if (muts[i].me > muts[i+1].ms) throw new Error(
+      'Mutations at nt ' + (muts[i].ms+1) + ' and nt ' + (muts[i+1].ms+1) + ' overlap -- cannot combine'
+    );
+  }
+
+  const nMm = muts.reduce((s, m) => s + countMm(m.orig, m.newSeq), 0);
+
+  const fwdList = primerCandidatesCombined(T, muts, nMm, true);
+  const revList = primerCandidatesCombined(T, muts, nMm, false);
+
+  let bestFwd = null, bestRev = null, bestTotal = Infinity;
+  for (const f of fwdList) {
+    for (const r of revList) {
+      if (f.fl3 < r.fl5 + 8) continue;
+      if (r.fl3 < f.fl5 + 8) continue;
+      const t = f.len + r.len;
+      if (t < bestTotal) { bestTotal = t; bestFwd = f; bestRev = r; }
+    }
+  }
+
+  const fn = (bestFwd && bestRev) ? (bestFwd.fl3 - bestRev.fl5) : 0;
+  const rn = (bestFwd && bestRev) ? (bestRev.fl3 - bestFwd.fl5) : 0;
+
+  return {
+    tmplLen: T.length, muts,
+    firstPos: muts[0].ms + 1, lastPos: muts[muts.length-1].me,
+    span: muts[muts.length-1].me - muts[0].ms,
+    nMm, fwd: bestFwd, rev: bestRev,
+    nonoverlapOk: fn >= 8 && rn >= 8,
+    fwdNonOverlap: fn, revNonOverlap: rn,
+  };
+}
+
+// =========================================================
+//  ANNOTATION
+// =========================================================
+// mutsArr: [{ms, me, orig, newSeq}] sorted by ms (0-based template positions)
+function annotateFwdHTML(seq, mutsArr, primerStart) {
+  let result = '';
+  let seqI = 0;
+  let tmplPos = primerStart;
+
+  for (const { ms, me, orig, newSeq } of mutsArr) {
+    const pre = ms - tmplPos;
+    if (pre > 0) {
+      result += '<span class="tmpl-base">' + esc(seq.slice(seqI, seqI + pre).toLowerCase()) + '</span>';
+      seqI += pre;
+    }
+    if (newSeq) {
+      result += '<span class="mut-hl">' + esc(seq.slice(seqI, seqI + newSeq.length)) + '</span>';
+      seqI += newSeq.length;
+    }
+    tmplPos = me;
+  }
+  result += '<span class="tmpl-base">' + esc(seq.slice(seqI).toLowerCase()) + '</span>';
+  return result;
+}
+
+function annotateRevHTML(seq, mutsArr, fl5Rev) {
+  let result = '';
+  let seqI = 0;
+  const n = mutsArr.length;
+
+  // 5' downstream flank
+  result += '<span class="tmpl-base">' + esc(seq.slice(seqI, seqI + fl5Rev).toLowerCase()) + '</span>';
+  seqI += fl5Rev;
+
+  // mutations in REVERSE order
+  for (let k = n - 1; k >= 0; k--) {
+    const { newSeq } = mutsArr[k];
+    result += '<span class="mut-hl">' + esc(seq.slice(seqI, seqI + newSeq.length)) + '</span>';
+    seqI += newSeq.length;
+    if (k > 0) {
+      // inter-mutation region between muts[k] and muts[k-1]
+      const inter = mutsArr[k].ms - mutsArr[k-1].me;
+      if (inter > 0) {
+        result += '<span class="tmpl-base">' + esc(seq.slice(seqI, seqI + inter).toLowerCase()) + '</span>';
+        seqI += inter;
+      }
+    }
+  }
+
+  // 3' upstream flank
+  result += '<span class="tmpl-base">' + esc(seq.slice(seqI).toLowerCase()) + '</span>';
+  return result;
+}
+
+function annotateFwdPlain(seq, mutsArr, primerStart) {
+  let result = '';
+  let seqI = 0;
+  let tmplPos = primerStart;
+  for (const { ms, me, newSeq } of mutsArr) {
+    const pre = ms - tmplPos;
+    if (pre > 0) { result += seq.slice(seqI, seqI + pre).toLowerCase(); seqI += pre; }
+    if (newSeq) { result += '[' + seq.slice(seqI, seqI + newSeq.length) + ']'; seqI += newSeq.length; }
+    tmplPos = me;
+  }
+  result += seq.slice(seqI).toLowerCase();
+  return result;
+}
+
+function annotateRevPlain(seq, mutsArr, fl5Rev) {
+  let result = '';
+  let seqI = 0;
+  const n = mutsArr.length;
+  result += seq.slice(seqI, seqI + fl5Rev).toLowerCase();
+  seqI += fl5Rev;
+  for (let k = n - 1; k >= 0; k--) {
+    const { newSeq } = mutsArr[k];
+    result += '[' + seq.slice(seqI, seqI + newSeq.length) + ']';
+    seqI += newSeq.length;
+    if (k > 0) {
+      const inter = mutsArr[k].ms - mutsArr[k-1].me;
+      if (inter > 0) { result += seq.slice(seqI, seqI + inter).toLowerCase(); seqI += inter; }
+    }
+  }
+  result += seq.slice(seqI).toLowerCase();
+  return result;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// =========================================================
+//  TEMPLATE META
+// =========================================================
+function updateTmplMeta() {
+  const raw = document.getElementById('tmpl-input').value;
+  const clean = raw.toUpperCase().replace(/[\s\r\n\t]/g,'');
+  document.getElementById('tmpl-len').textContent = clean.length;
+  document.getElementById('tmpl-gc').textContent = gcPct(clean).toFixed(1);
+}
+
+// =========================================================
+//  MUTATION ROWS
+// =========================================================
+let mutRowId = 0;
+
+function addDnaRow(prefill) {
+  const id = ++mutRowId;
+  const p = prefill || {};
+  const div = document.createElement('div');
+  div.className = 'mut-row';
+  div.id = 'mut-row-' + id;
+  div.dataset.type = 'dna';
+  div.innerHTML = `
+    <span class="badge badge-dna">DNA</span>
+    <input type="number" placeholder="Position" min="1" value="${p.pos||''}" class="mut-pos" title="1-based nt position">
+    <input type="text" placeholder="Original (- for ins)" value="${p.orig||''}" class="mut-orig" maxlength="200" title="Original sequence (or - for insertion)">
+    <input type="text" placeholder="New (- for del)" value="${p.new||''}" class="mut-new"  maxlength="200" title="New sequence (or - for deletion)">
+    <button class="btn-remove" onclick="removeRow(${id})">Remove</button>
+  `;
+  document.getElementById('mut-list').appendChild(div);
+}
+
+function addAaRow(prefill) {
+  const id = ++mutRowId;
+  const p = prefill || {};
+  const div = document.createElement('div');
+  div.className = 'mut-row';
+  div.id = 'mut-row-' + id;
+  div.dataset.type = 'aa';
+  div.innerHTML = `
+    <span class="badge badge-aa">AA</span>
+    <input type="number" placeholder="AA Position" min="1" value="${p.pos||''}" class="mut-pos" style="width:90px" title="1-based amino acid position">
+    <input type="text" placeholder="Orig AA (1-letter)" value="${p.orig||''}" class="mut-orig" maxlength="1" style="width:110px" title="Original amino acid (1-letter code)">
+    <input type="text" placeholder="New AA (1-letter)" value="${p.new||''}"  class="mut-new"  maxlength="1" style="width:100px" title="New amino acid (1-letter code)">
+    <button class="btn-remove" onclick="removeRow(${id})">Remove</button>
+  `;
+  document.getElementById('mut-list').appendChild(div);
+}
+
+function removeRow(id) {
+  const el = document.getElementById('mut-row-' + id);
+  if (el) el.remove();
+}
+
+// =========================================================
+//  READ MUTATION ROWS
+// =========================================================
+function readMutations(tmplStr, cdsStart) {
+  const rows = document.querySelectorAll('#mut-list .mut-row');
+  if (!rows.length) throw new Error('Add at least one mutation.');
+
+  const result = [];
+  rows.forEach((row, idx) => {
+    const type  = row.dataset.type;
+    const posEl = row.querySelector('.mut-pos');
+    const origEl= row.querySelector('.mut-orig');
+    const newEl = row.querySelector('.mut-new');
+
+    const posVal  = posEl.value.trim();
+    const origVal = origEl.value.trim();
+    const newVal  = newEl.value.trim();
+
+    if (!posVal) throw new Error('Row ' + (idx+1) + ': position is required.');
+    const posNum = parseInt(posVal, 10);
+    if (isNaN(posNum) || posNum < 1) throw new Error('Row ' + (idx+1) + ': position must be a positive integer.');
+
+    if (type === 'dna') {
+      const origStr = (origVal === '-' || origVal === '') ? '' : origVal.toUpperCase();
+      const newStr  = (newVal  === '-' || newVal  === '') ? '' : newVal.toUpperCase();
+      if (!origStr && !newStr) throw new Error('Row ' + (idx+1) + ': original and new cannot both be empty.');
+      result.push({ type:'dna', pos: posNum, orig: origStr, newSeq: newStr, codonInfo: null });
+
+    } else { // aa
+      if (!origVal) throw new Error('Row ' + (idx+1) + ': original AA is required.');
+      if (!newVal)  throw new Error('Row ' + (idx+1) + ': new AA is required.');
+      const { ntPos, origCodon, newCodon, info } = aaMutToDna(tmplStr, posNum, origVal, newVal, cdsStart);
+      result.push({ type:'aa', pos: ntPos, orig: origCodon, newSeq: newCodon, codonInfo: info });
+    }
+  });
+
+  return result;
+}
+
+// =========================================================
+//  RUN DESIGN
+// =========================================================
+let _lastResults = null; // for download
+
+function runDesign() {
+  const btn = document.getElementById('btn-design');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btn-design-text');
+
+  // Validate template
+  let tmplStr;
+  try {
+    const raw = document.getElementById('tmpl-input').value;
+    tmplStr = validateDNA(raw);
+    if (tmplStr.length < 20) throw new Error('Template too short; please provide >= 20 bp.');
+  } catch(e) {
+    alert('Template error: ' + e.message);
+    return;
+  }
+
+  const cdsStart = parseInt(document.getElementById('cds-start').value, 10) || 1;
+
+  // Read mutation rows
+  let mutations;
+  try {
+    mutations = readMutations(tmplStr, cdsStart);
+  } catch(e) {
+    alert('Mutation error: ' + e.message);
+    return;
+  }
+
+  // Show spinner
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent = 'Designing...';
+
+  // Defer to allow UI update
+  setTimeout(() => {
+    try {
+      _lastResults = null;
+      const resultsBody = document.getElementById('results-body');
+      resultsBody.innerHTML = '';
+
+      const allResults = [];
+
+      // Individual designs
+      const indivHeader = document.createElement('div');
+      indivHeader.innerHTML = '<h3 style="font-size:1rem;font-weight:700;color:#374151;margin-bottom:12px;">Individual Primer Pairs (' + mutations.length + ')</h3>';
+      resultsBody.appendChild(indivHeader);
+
+      mutations.forEach((mut, idx) => {
+        let r;
+        try {
+          r = designSingle(tmplStr, mut.pos, mut.orig, mut.newSeq);
+          r.codonInfo = mut.codonInfo;
+        } catch(e) {
+          const errDiv = document.createElement('div');
+          errDiv.className = 'error-box';
+          errDiv.innerHTML = '<strong>Mutation ' + (idx+1) + ' error:</strong> ' + esc(e.message);
+          resultsBody.appendChild(errDiv);
+          return;
+        }
+        allResults.push({ mut, r });
+        const card = buildPrimerCard(r, idx + 1, mutations.length, mut, false);
+        resultsBody.appendChild(card);
+      });
+
+      // Combined design (>1 mutation)
+      if (mutations.length > 1) {
+        const combHeader = document.createElement('div');
+        combHeader.innerHTML = '<h3 style="font-size:1rem;font-weight:700;color:#374151;margin:20px 0 12px;">Combined Primer Pair (all ' + mutations.length + ' mutations)</h3>';
+        resultsBody.appendChild(combHeader);
+
+        let rc;
+        try {
+          rc = designCombined(tmplStr, mutations.map(m => ({ pos: m.pos, orig: m.orig, newSeq: m.newSeq })));
+          rc.codonInfos = mutations.map(m => m.codonInfo);
+          const card = buildCombinedCard(rc, mutations);
+          resultsBody.appendChild(card);
+          allResults.push({ combined: rc, mutations });
+        } catch(e) {
+          const errDiv = document.createElement('div');
+          errDiv.className = 'error-box';
+          errDiv.innerHTML = '<strong>Combined design error:</strong> ' + esc(e.message);
+          resultsBody.appendChild(errDiv);
+        }
+      }
+
+      _lastResults = { tmplStr, cdsStart, mutations, allResults };
+
+      document.getElementById('results-section').style.display = 'block';
+      document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch(e) {
+      alert('Unexpected error: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'Design Primers';
+    }
+  }, 20);
+}
+
+// =========================================================
+//  BUILD PRIMER CARD (individual)
+// =========================================================
+function buildPrimerCard(r, idx, total, mut, isCombined) {
+  const card = document.createElement('div');
+  card.className = 'primer-card';
+
+  // header
+  const mutLabel = mut.type === 'aa'
+    ? 'AA' + mut.codonInfo.aaPos + ' ' + mut.codonInfo.origAa + '→' + mut.codonInfo.newAa + ' (nt ' + mut.pos + ' ' + mut.orig + '→' + mut.newSeq + ')'
+    : 'nt ' + mut.pos + ' ' + (mut.orig||'(ins)') + ' → ' + (mut.newSeq||'(del)');
+
+  card.innerHTML = `<div class="primer-card-header">
+    <div class="card-title">Mutation ${idx}${total > 1 ? ' of ' + total : ''}</div>
+    <span class="mut-chip">${esc(mutLabel)}</span>
+  </div>`;
+
+  const body = document.createElement('div');
+  body.className = 'primer-card-body';
+
+  // Build muts array for annotation (single mutation)
+  const mutsArr = [{ ms: mut.pos - 1, me: mut.pos - 1 + mut.orig.length, orig: mut.orig, newSeq: mut.newSeq }];
+
+  // Forward primer
+  body.appendChild(buildPrimerSection(r.fwd, 'Forward Primer   5\'→3\'  (sense strand)', true, mutsArr));
+  body.appendChild(buildPrimerSection(r.rev, 'Reverse Primer   5\'→3\'  (antisense strand)', false, mutsArr));
+
+  // Validation
+  body.appendChild(buildValidation(r));
+
+  // Codon info
+  if (r.codonInfo) {
+    body.appendChild(buildCodonTable(r.codonInfo));
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+function buildCombinedCard(rc, mutations) {
+  const card = document.createElement('div');
+  card.className = 'primer-card';
+
+  // Header with mutation chips
+  let chipHtml = mutations.map((m, i) => {
+    const label = m.type === 'aa'
+      ? 'AA' + m.codonInfo.aaPos + ' ' + m.codonInfo.origAa + '→' + m.codonInfo.newAa
+      : 'nt' + m.pos + ' ' + (m.orig||'ins') + '→' + (m.newSeq||'del');
+    return '<span class="mut-chip">' + esc(label) + '</span>';
+  }).join(' ');
+
+  card.innerHTML = `<div class="primer-card-header">
+    <div class="card-title">Combined – ${mutations.length} mutations</div>
+    ${chipHtml}
+  </div>`;
+
+  const body = document.createElement('div');
+  body.className = 'primer-card-body';
+
+  const mutsArr = rc.muts; // [{ms, me, orig, newSeq}]
+
+  body.appendChild(buildPrimerSection(rc.fwd, 'Forward Primer   5\'→3\'  (sense strand)', true, mutsArr));
+  body.appendChild(buildPrimerSection(rc.rev, 'Reverse Primer   5\'→3\'  (antisense strand)', false, mutsArr));
+
+  // Validation
+  body.appendChild(buildValidationCombined(rc));
+
+  // Codon tables
+  if (rc.codonInfos) {
+    rc.codonInfos.forEach((ci, i) => {
+      if (ci) body.appendChild(buildCodonTable(ci, 'Mutation ' + (i+1) + ' – '));
+    });
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+// =========================================================
+//  PRIMER SECTION (fwd or rev)
+// =========================================================
+function buildPrimerSection(p, labelText, isFwd, mutsArr) {
+  const wrap = document.createElement('div');
+  const labelEl = document.createElement('div');
+  labelEl.className = 'primer-label';
+  labelEl.textContent = labelText;
+  wrap.appendChild(labelEl);
+
+  if (!p) {
+    const nf = document.createElement('div');
+    nf.className = 'not-found-box';
+    nf.innerHTML = '<strong>Not found.</strong> No primer satisfying all criteria within max length (70 bp). ' +
+      'Tip: provide more flanking template sequence (&ge;30 nt on each side).';
+    wrap.appendChild(nf);
+    return wrap;
+  }
+
+  // Annotated sequence display
+  const seqBlock = document.createElement('div');
+  seqBlock.className = 'seq-block';
+
+  const annHtml = isFwd
+    ? annotateFwdHTML(p.seq, mutsArr, p.ts - 1)
+    : annotateRevHTML(p.seq, mutsArr, p.fl5);
+
+  const seqDisplay = document.createElement('div');
+  seqDisplay.className = 'seq-display';
+  seqDisplay.innerHTML = "5'&ndash;" + annHtml + "&ndash;3'";
+  seqBlock.appendChild(seqDisplay);
+
+  // Copy button (annotated plain text)
+  const annPlain = isFwd
+    ? annotateFwdPlain(p.seq, mutsArr, p.ts - 1)
+    : annotateRevPlain(p.seq, mutsArr, p.fl5);
+
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'btn-copy';
+  copyBtn.textContent = 'Copy';
+  copyBtn.onclick = () => copyText("5'-" + p.seq + "-3'", copyBtn);
+  seqBlock.appendChild(copyBtn);
+  wrap.appendChild(seqBlock);
+
+  // Plain sequence
+  const plain = document.createElement('div');
+  plain.className = 'plain-seq';
+  plain.innerHTML = "5'&ndash;" + esc(p.seq) + "&ndash;3'";
+  wrap.appendChild(plain);
+
+  // Stats grid
+  const grid = document.createElement('div');
+  grid.className = 'stats-grid';
+  const tmCls = p.tm >= 78 ? 'tm-ok' : 'tm-bad';
+  grid.innerHTML = `
+    <div class="stat-box"><div class="stat-val">${p.len}</div><div class="stat-key">Length (bp)</div></div>
+    <div class="stat-box"><div class="stat-val ${tmCls}">${p.tm.toFixed(2)}°C</div><div class="stat-key">Tm</div></div>
+    <div class="stat-box"><div class="stat-val">${p.gc.toFixed(1)}%</div><div class="stat-key">%GC</div></div>
+    <div class="stat-box"><div class="stat-val">${p.fl5}</div><div class="stat-key">5' flank (nt)</div></div>
+    <div class="stat-box"><div class="stat-val">${p.fl3}</div><div class="stat-key">3' flank (nt)</div></div>
+  `;
+  wrap.appendChild(grid);
+
+  // Template range
+  const tmplRange = document.createElement('div');
+  tmplRange.className = 'tmpl-range';
+  tmplRange.innerHTML = 'Template range: nt <span>' + p.ts + '&ndash;' + p.te + '</span>';
+  wrap.appendChild(tmplRange);
+
+  const hr = document.createElement('hr');
+  hr.className = 'divider';
+  wrap.appendChild(hr);
+
+  return wrap;
+}
+
+// =========================================================
+//  VALIDATION SECTION
+// =========================================================
+function buildValidation(r) {
+  const { fwd: f, rev: v, fwdNonOverlap: fn, revNonOverlap: rn } = r;
+  const checks = [
+    ['Mutation present in both primers',           f !== null && v !== null],
+    ['Fwd: mutation ≥4 nt from 5\' end',           f !== null && f.fl5 >= 4],
+    ['Rev: mutation ≥4 nt from 5\' end',           v !== null && v.fl5 >= 4],
+    ['Fwd: mutation ≥8 nt from 3\' end',           f !== null && f.fl3 >= 8],
+    ['Rev: mutation ≥8 nt from 3\' end',           v !== null && v.fl3 >= 8],
+    ['Fwd: 3\' terminal base is G or C',           f !== null && 'GC'.includes(f.seq[f.seq.length-1])],
+    ['Rev: 3\' terminal base is G or C',           v !== null && 'GC'.includes(v.seq[v.seq.length-1])],
+    ['Fwd: Tm ≥ 78°C',                             f !== null && f.tm >= 78.0],
+    ['Rev: Tm ≥ 78°C',                             v !== null && v.tm >= 78.0],
+    ['Fwd 3\' non-overlap = fl3_fwd(' + (f?f.fl3:0) + ')−fl5_rev(' + (v?v.fl5:0) + ') = ' + fn + ' ≥ 8', fn >= 8],
+    ['Rev 3\' non-overlap = fl3_rev(' + (v?v.fl3:0) + ')−fl5_fwd(' + (f?f.fl5:0) + ') = ' + rn + ' ≥ 8', rn >= 8],
+  ];
+  return buildChecklist(checks);
+}
+
+function buildValidationCombined(rc) {
+  const { fwd: f, rev: v, fwdNonOverlap: fn, revNonOverlap: rn } = rc;
+  const checks = [
+    ['All mutations in both primers',              f !== null && v !== null],
+    ['Fwd: first mut ≥4 nt from 5\' end',         f !== null && f.fl5 >= 4],
+    ['Rev: first mut ≥4 nt from 5\' end',         v !== null && v.fl5 >= 4],
+    ['Fwd: last mut ≥8 nt from 3\' end',          f !== null && f.fl3 >= 8],
+    ['Rev: last mut ≥8 nt from 3\' end',          v !== null && v.fl3 >= 8],
+    ['Fwd: 3\' terminal base is G or C',          f !== null && 'GC'.includes(f.seq[f.seq.length-1])],
+    ['Rev: 3\' terminal base is G or C',          v !== null && 'GC'.includes(v.seq[v.seq.length-1])],
+    ['Fwd: Tm ≥ 78°C',                            f !== null && f.tm >= 78.0],
+    ['Rev: Tm ≥ 78°C',                            v !== null && v.tm >= 78.0],
+    ['Fwd 3\' non-overlap = fl3_fwd(' + (f?f.fl3:0) + ')−fl5_rev(' + (v?v.fl5:0) + ') = ' + fn + ' ≥ 8', fn >= 8],
+    ['Rev 3\' non-overlap = fl3_rev(' + (v?v.fl3:0) + ')−fl5_fwd(' + (f?f.fl5:0) + ') = ' + rn + ' ≥ 8', rn >= 8],
+  ];
+  return buildChecklist(checks);
+}
+
+function buildChecklist(checks) {
+  const wrap = document.createElement('div');
+  const title = document.createElement('div');
+  title.className = 'primer-label';
+  title.textContent = 'Validation Checklist';
+  wrap.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.className = 'validation-grid';
+
+  checks.forEach(([desc, ok]) => {
+    const item = document.createElement('div');
+    item.className = 'check-item ' + (ok ? 'check-ok' : 'check-fail');
+    item.innerHTML = `<span class="check-icon">${ok ? '✓' : '✗'}</span><span>${esc(desc)}</span>`;
+    grid.appendChild(item);
+  });
+
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+// =========================================================
+//  CODON TABLE
+// =========================================================
+function buildCodonTable(ci, prefixLabel) {
+  const wrap = document.createElement('div');
+  wrap.className = 'codon-section';
+
+  const toggle = document.createElement('button');
+  toggle.className = 'codon-toggle';
+  const label = (prefixLabel||'') + 'Codon selection: ' + ci.origAa + ' (' + (AA_NAMES[ci.origAa]||'') + ') → ' + ci.newAa + ' (' + (AA_NAMES[ci.newAa]||'') + ')  ' + ci.origCodon + '→' + ci.newCodon;
+  toggle.textContent = '▶ ' + label;
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'codon-table-wrap';
+
+  toggle.onclick = () => {
+    const open = tableWrap.classList.toggle('open');
+    toggle.textContent = (open ? '▼ ' : '▶ ') + label;
+  };
+
+  let rows = '';
+  ci.ranked.forEach(([codon, freq]) => {
+    const sel = codon === ci.newCodon;
+    rows += `<tr class="${sel ? 'selected-codon' : ''}">
+      <td class="codon-label">${esc(codon)}</td>
+      <td>${freq.toFixed(1)}</td>
+      <td>${sel ? '✓ selected' : ''}</td>
+    </tr>`;
+  });
+
+  tableWrap.innerHTML = `<table class="codon-tbl">
+    <thead><tr><th>Codon</th><th>Freq / 1000</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+
+  wrap.appendChild(toggle);
+  wrap.appendChild(tableWrap);
+  return wrap;
+}
+
+// =========================================================
+//  COPY TO CLIPBOARD
+// =========================================================
+function copyText(text, btn) {
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => flashCopied(btn)).catch(() => { fallback(); flashCopied(btn); });
+  } else {
+    fallback();
+    flashCopied(btn);
+  }
+}
+
+function flashCopied(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+}
+
+// =========================================================
+//  DOWNLOAD RESULTS
+// =========================================================
+function downloadResults() {
+  if (!_lastResults) return;
+  const { tmplStr, mutations, allResults } = _lastResults;
+  const lines = [];
+  const W = 68;
+  const sep  = '='.repeat(W);
+  const thin = '-'.repeat(W);
+
+  lines.push('SDM PRIMER DESIGNER – RESULTS');
+  lines.push('Generated: ' + new Date().toISOString());
+  lines.push(sep);
+  lines.push('Template: ' + tmplStr.length + ' bp, GC ' + gcPct(tmplStr).toFixed(1) + '%');
+  lines.push('');
+
+  allResults.forEach((item, idx) => {
+    if (item.combined) {
+      const rc = item.combined;
+      lines.push(sep);
+      lines.push('COMBINED PRIMER PAIR  (' + rc.muts.length + ' mutations)');
+      lines.push(sep);
+      dumpPrimerTxt(rc.fwd, 'FORWARD', lines, thin);
+      dumpPrimerTxt(rc.rev, 'REVERSE', lines, thin);
+      dumpValidationTxt(rc, lines);
+    } else {
+      const { mut, r } = item;
+      lines.push(sep);
+      const mutLabel = mut.type === 'aa'
+        ? 'AA mut ' + mut.codonInfo.aaPos + ' ' + mut.codonInfo.origAa + '→' + mut.codonInfo.newAa + '  (nt ' + mut.pos + ' ' + mut.orig + '→' + mut.newSeq + ')'
+        : 'DNA mut nt ' + mut.pos + ' ' + (mut.orig||'(ins)') + ' → ' + (mut.newSeq||'(del)');
+      lines.push('MUTATION ' + (idx+1) + ': ' + mutLabel);
+      lines.push(sep);
+      if (r.codonInfo) {
+        const ci = r.codonInfo;
+        lines.push('  Codon: ' + ci.origCodon + ' → ' + ci.newCodon + '  [E.coli K-12]');
+        ci.ranked.forEach(([c, f]) => lines.push('    ' + c + '  ' + f.toFixed(1) + (c===ci.newCodon?' <-- selected':'')));
+        lines.push('');
+      }
+      dumpPrimerTxt(r.fwd, 'FORWARD', lines, thin);
+      dumpPrimerTxt(r.rev, 'REVERSE', lines, thin);
+      dumpValidationTxt(r, lines);
+    }
+    lines.push('');
+  });
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sdm_primers.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function dumpPrimerTxt(p, label, lines, thin) {
+  lines.push(thin);
+  lines.push('  ' + label + ' PRIMER  5\'->3\'');
+  lines.push(thin);
+  if (!p) {
+    lines.push('  [NOT FOUND]');
+    return;
+  }
+  lines.push('  Sequence : 5\'-' + p.seq + '-3\'');
+  lines.push('  Length   : ' + p.len + ' bp     Tm: ' + p.tm.toFixed(2) + ' degC     %GC: ' + p.gc.toFixed(1) + '%');
+  lines.push('  5\' flank : ' + p.fl5 + ' nt  |  3\' flank : ' + p.fl3 + ' nt');
+  lines.push('  Template : nt ' + p.ts + ' - ' + p.te);
+}
+
+function dumpValidationTxt(r, lines) {
+  const f = r.fwd, v = r.rev;
+  const fn = r.fwdNonOverlap, rn = r.revNonOverlap;
+  const checks = [
+    ['Mutation present in both primers',  f&&v],
+    ['Fwd: mut >=4 nt from 5\' end',      f&&f.fl5>=4],
+    ['Rev: mut >=4 nt from 5\' end',      v&&v.fl5>=4],
+    ['Fwd: mut >=8 nt from 3\' end',      f&&f.fl3>=8],
+    ['Rev: mut >=8 nt from 3\' end',      v&&v.fl3>=8],
+    ['Fwd: 3\' terminal is G/C',          f&&'GC'.includes(f.seq[f.seq.length-1])],
+    ['Rev: 3\' terminal is G/C',          v&&'GC'.includes(v.seq[v.seq.length-1])],
+    ['Fwd: Tm >= 78 degC',                f&&f.tm>=78],
+    ['Rev: Tm >= 78 degC',                v&&v.tm>=78],
+    ['Fwd non-overlap fl3('+( f?f.fl3:0)+')-fl5_rev('+(v?v.fl5:0)+')='+fn+' >= 8', fn>=8],
+    ['Rev non-overlap fl3('+(v?v.fl3:0)+')-fl5_fwd('+(f?f.fl5:0)+')='+rn+' >= 8', rn>=8],
+  ];
+  lines.push('');
+  lines.push('  VALIDATION:');
+  checks.forEach(([d, ok]) => lines.push('  ' + (ok?'[OK]  ':'[FAIL]') + '  ' + d));
+}
+
+// =========================================================
+//  INIT
+// =========================================================
+addDnaRow({ pos:'', orig:'', new:'' });
+</script>
+</body>
+</html>
