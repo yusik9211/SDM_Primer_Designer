@@ -9,8 +9,8 @@ Given a template DNA sequence and desired mutations, it automatically designs fo
 
 | File | Description |
 |------|-------------|
-| `sdm_primer_designer_v3.html` | **Web version (recommended)** — open in browser, no installation; Excel/TXT download |
-| `sdm_primer_designer_v3.py`  | **Python version** — run in terminal, requires Python 3 |
+| `sdm_primer_designer.html` | **Web version (recommended)** — open in browser, no installation; Excel/TXT download |
+| `sdm_primer_designer.py`   | **Python version** — run in terminal, requires Python 3 |
 
 Previous versions (v1, v2) are available in the [`legacy/`](legacy/) folder.
 

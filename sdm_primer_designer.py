@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SDM (Site-Directed Mutagenesis) Double Primer Designer  v3
+SDM (Site-Directed Mutagenesis) Double Primer Designer
 
 Design rules enforced:
   - Mutation included in both primers
@@ -13,10 +13,7 @@ Design rules enforced:
 Amino acid mode:
   - Specify protein position + original AA + new AA
   - Best codon selected by E. coli K-12 codon usage frequency
-
-v3 additions:
-  - Gene name input; primers named {Gene}_{Mut}_F / {Gene}_{Mut}_R
-    e.g.  MaEgtB_G100A_F  /  MaEgtB_G100A_R
+  - Primers named {Gene}_{Mut}_F / {Gene}_{Mut}_R (e.g. MaEgtB_G100A_F)
 
 Copyright (c) 2026 Yusik Kim, Korea University
 Contact: yusik9211@korea.ac.kr
