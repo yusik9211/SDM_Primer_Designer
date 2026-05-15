@@ -11,8 +11,8 @@ Given a template DNA sequence and desired mutations, it automatically designs fo
 |------|-------------|
 | `sdm_primer_designer_v3.html` | **Web version (recommended)** — open in browser, no installation; Excel/TXT download |
 | `sdm_primer_designer_v3.py`  | **Python version** — run in terminal, requires Python 3 |
-| `sdm_primer_designer_v2.html` | Previous version (no gene name field) |
-| `sdm_primer_designer_v2.py`  | Previous version (no gene name field) |
+
+Previous versions (v1, v2) are available in the [`legacy/`](legacy/) folder.
 
 ---
 
