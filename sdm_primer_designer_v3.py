@@ -17,6 +17,14 @@ Amino acid mode:
 v3 additions:
   - Gene name input; primers named {Gene}_{Mut}_F / {Gene}_{Mut}_R
     e.g.  MaEgtB_G100A_F  /  MaEgtB_G100A_R
+
+Copyright (c) 2026 Yusik Kim, Korea University
+Contact: yusik9211@korea.ac.kr
+
+Reference:
+  Zheng, L., U. Baumann, and Jean-Louis Reymond. (2004).
+  An efficient one-step site-directed and site-saturation mutagenesis protocol.
+  Nucleic Acids Res. 32(14): e115.
 """
 
 import sys

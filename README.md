@@ -171,3 +171,18 @@ In AA mutation mode, the codon with the highest usage frequency (per 1,000 codon
 - The template sequence should have **at least 30 nt of flanking sequence on each side** of the mutation site. Insufficient flanking may prevent a valid primer from being found.
 - In Combined mode with multiple mutations, overlapping mutation sites will cause design failure.
 - Excel download in the HTML version requires an internet connection (SheetJS CDN).
+
+---
+
+## Reference
+
+Zheng, L., U. Baumann, and Jean-Louis Reymond. (2004).
+An efficient one-step site-directed and site-saturation mutagenesis protocol.
+*Nucleic Acids Res.* 32(14): e115.
+
+---
+
+## Copyright
+
+Copyright &copy; 2026 Yusik Kim, Korea University  
+Contact: [yusik9211@korea.ac.kr](mailto:yusik9211@korea.ac.kr)
