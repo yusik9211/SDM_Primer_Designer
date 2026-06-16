@@ -679,6 +679,182 @@ def parse_aa_mut(s):
     return pos, orig, new
 
 
+# --------------------------- SSM -------------------------------------
+
+_ALL_AAS = "ACDEFGHIKLMNPQRSTVWY"
+
+
+def show_ssm(results, gene_name, wt_aa, aa_pos, wt_codon, tmpl_len):
+    W    = 68
+    sep  = "=" * W
+    thin = "-" * W
+
+    pass_count  = sum(1 for e in results if e["success"] and e["pass"])
+    check_count = sum(1 for e in results if e["success"] and not e["pass"])
+    err_count   = sum(1 for e in results if not e["success"])
+
+    print()
+    print(sep)
+    print("  SITE SATURATION MUTAGENESIS")
+    print(sep)
+    print("  Site     : AA%d  %s (%s)  wild-type codon: %s"
+          % (aa_pos, wt_aa, AA_NAMES.get(wt_aa, "?"), wt_codon))
+    print("  Template : %d bp" % tmpl_len)
+    print("  Results  : %d PASS  /  %d CHECK  /  %d ERROR  (of 19)"
+          % (pass_count, check_count, err_count))
+    print(sep)
+    print()
+
+    # Dynamic column width for primer names
+    name_w = max(
+        (len(e["fwd_name"]) for e in results if e.get("success")),
+        default=18,
+    )
+    name_w = max(name_w, 18)
+
+    hdr_fmt = "  %-10s %-6s %-3s  %-*s  %5s  %7s  %s"
+    row_fmt  = "  %-10s %-6s %-3s  %-*s  %5s  %7s  %s"
+    row_fmt2 = "  %-10s %-6s %-3s  %-*s  %5s  %7s"
+
+    print(hdr_fmt % ("AA", "Codon", "Dir", name_w, "Primer Name", "Len", "Tm(°C)", "OK?"))
+    print("  " + thin[2:])
+
+    for entry in results:
+        aa_label = "%s (%s)" % (entry["target_aa"], AA_NAMES.get(entry["target_aa"], "?"))
+
+        if not entry["success"]:
+            print("  %-10s %-6s  ERROR: %s" % (aa_label, "-", entry["error"]))
+            print()
+            continue
+
+        ci     = entry["codon_info"]
+        r      = entry["r"]
+        status = "PASS" if entry["pass"] else "CHECK"
+
+        fwd = r["fwd"]
+        if fwd:
+            print(row_fmt % (aa_label, ci["new_codon"], "F",
+                             name_w, entry["fwd_name"],
+                             fwd["len"], "%.1f" % fwd["tm"], status))
+        else:
+            print(row_fmt % (aa_label, ci["new_codon"], "F",
+                             name_w, "[NOT FOUND]", "-", "-", "CHECK"))
+
+        rev = r["rev"]
+        if rev:
+            print(row_fmt2 % ("", "", "R",
+                              name_w, entry["rev_name"],
+                              rev["len"], "%.1f" % rev["tm"]))
+        else:
+            print(row_fmt2 % ("", "", "R", name_w, "[NOT FOUND]", "-", "-"))
+
+    print()
+    print("  " + thin[2:])
+    print("  PASS: %d  |  CHECK: %d  |  ERROR: %d"
+          % (pass_count, check_count, err_count))
+    print(sep)
+    if check_count or err_count:
+        print()
+        print("  Tip: CHECK rows need attention. Provide >= 30 nt flanking sequence")
+        print("       on each side of the mutation site and re-run.")
+    print()
+
+
+def run_ssm(tmpl, cds_start, gene_name=""):
+    print()
+    print("  Site Saturation Mutagenesis")
+    print("  Enter the amino acid position to saturate (1-based).")
+    print("  The wild-type residue is auto-detected from the template.")
+    print()
+
+    while True:
+        try:
+            aa_pos = int(input("  AA position > ").strip())
+            if aa_pos < 1:
+                raise ValueError("Must be >= 1")
+            nt_off = cds_start + (aa_pos - 1) * 3 - 1
+            if nt_off < 0 or nt_off + 3 > len(tmpl):
+                raise ValueError(
+                    "AA position %d (nt %d-%d) is outside the template (%d bp)"
+                    % (aa_pos, nt_off + 1, nt_off + 3, len(tmpl))
+                )
+            wt_codon = tmpl[nt_off:nt_off + 3]
+            wt_aa    = translate_codon(wt_codon)
+            if wt_aa == "*":
+                raise ValueError("Position %d encodes a stop codon (%s)" % (aa_pos, wt_codon))
+            if wt_aa == "?":
+                raise ValueError("Codon '%s' at position %d is not standard" % (wt_codon, aa_pos))
+            print("  Wild-type at AA%d: %s = %s (%s)"
+                  % (aa_pos, wt_codon, wt_aa, AA_NAMES.get(wt_aa, "?")))
+            break
+        except ValueError as e:
+            print("  Error: %s -- try again." % e)
+
+    nt_pos = cds_start + (aa_pos - 1) * 3   # 1-based nt position of codon start
+
+    print()
+    print("  Designing primers for all 19 substitutions at %s%d ..." % (wt_aa, aa_pos))
+
+    results = []
+    for target_aa in _ALL_AAS:
+        if target_aa == wt_aa:
+            continue
+        try:
+            new_codon   = best_ecoli_codon(target_aa)
+            codon_info  = {
+                "aa_pos":     aa_pos,
+                "orig_aa":    wt_aa,
+                "new_aa":     target_aa,
+                "orig_codon": wt_codon,
+                "new_codon":  new_codon,
+                "ranked":     ecoli_codons_ranked(target_aa),
+                "nt_pos":     nt_pos,
+                "cds_start":  cds_start,
+            }
+            r = design(tmpl, nt_pos, wt_codon, new_codon)
+            r["codon_info"] = codon_info
+
+            mut_lbl  = "%s%d%s" % (wt_aa, aa_pos, target_aa)
+            fwd_name = primer_name(gene_name, mut_lbl, is_fwd=True)
+            rev_name = primer_name(gene_name, mut_lbl, is_fwd=False)
+            ok = bool(r["fwd"] and r["rev"] and r["nonoverlap_ok"]
+                      and r["fwd"]["tm"] >= 78.0 and r["rev"]["tm"] >= 78.0)
+            results.append(dict(
+                target_aa=target_aa, codon_info=codon_info,
+                r=r, fwd_name=fwd_name, rev_name=rev_name,
+                success=True, **{"pass": ok},
+            ))
+        except Exception as e:
+            results.append(dict(target_aa=target_aa, error=str(e), success=False))
+
+    show_ssm(results, gene_name, wt_aa, aa_pos, wt_codon, len(tmpl))
+
+    # Optional detailed view
+    while True:
+        print("Show full primer details? [all / <AA letter> / n]: ", end="")
+        ans = input().strip().lower()
+        if ans in ("", "n", "no"):
+            break
+        if ans == "all":
+            for entry in results:
+                if entry["success"]:
+                    print()
+                    print("  === %s%d%s ===" % (wt_aa, aa_pos, entry["target_aa"]))
+                    show(entry["r"], gene_name=gene_name)
+            break
+        if ans.upper() in _ALL_AAS:
+            target = ans.upper()
+            found = next((e for e in results if e["target_aa"] == target), None)
+            if found is None:
+                print("  '%s' is the wild-type or not a standard amino acid." % target.upper())
+            elif not found["success"]:
+                print("  Error for %s%d%s: %s" % (wt_aa, aa_pos, target, found["error"]))
+            else:
+                show(found["r"], gene_name=gene_name)
+        else:
+            print("  Enter 'all', a 1-letter AA code (e.g. 'A'), or 'n' to skip.")
+
+
 # --------------------------- main ------------------------------------
 
 def _resolve_mutation(tmpl, raw, cds_start):
@@ -872,17 +1048,18 @@ def main():
         except ValueError:
             print("  Enter a number.")
 
-    # -- single vs multi --
+    # -- design mode --
     print()
     print("Design mode:")
     print("  [1] Single mutation")
     print("  [2] Multiple mutations (individual + combined primer sets)")
+    print("  [3] Site Saturation Mutagenesis -- all 19 AA substitutions at one position")
 
     while True:
-        mode = input("\n  Choose [1/2]: ").strip()
-        if mode in ("1", "2"):
+        mode = input("\n  Choose [1/2/3]: ").strip()
+        if mode in ("1", "2", "3"):
             break
-        print("  Please enter 1 or 2.")
+        print("  Please enter 1, 2, or 3.")
 
     if mode == "1":
         run_once(tmpl, cds_start, gene_name=gene_name)
@@ -891,13 +1068,20 @@ def main():
             if ans not in ("y", "yes"):
                 break
             run_once(tmpl, cds_start, gene_name=gene_name)
-    else:
+    elif mode == "2":
         run_batch(tmpl, cds_start, gene_name=gene_name)
         while True:
             ans = input("Design another batch on the same template? [y/N]: ").strip().lower()
             if ans not in ("y", "yes"):
                 break
             run_batch(tmpl, cds_start, gene_name=gene_name)
+    else:
+        run_ssm(tmpl, cds_start, gene_name=gene_name)
+        while True:
+            ans = input("Design SSM at another position on the same template? [y/N]: ").strip().lower()
+            if ans not in ("y", "yes"):
+                break
+            run_ssm(tmpl, cds_start, gene_name=gene_name)
 
 
 if __name__ == "__main__":

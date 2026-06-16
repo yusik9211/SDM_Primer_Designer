@@ -435,6 +435,175 @@
     .mut-row { flex-direction: column; align-items: flex-start; }
     .btn-remove { margin-left: 0; }
   }
+
+  /* ── Mode tabs (SDM / SSM) ──────────────────────────────── */
+  .mode-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  .mode-tab {
+    padding: 9px 22px;
+    border: none;
+    background: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #6b7280;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+    border-radius: 6px 6px 0 0;
+  }
+  .mode-tab.active { color: #1a6b3c; border-bottom-color: #1a6b3c; background: #f0fdf4; }
+  .mode-tab:hover:not(.active) { background: #f9fafb; color: #374151; }
+
+  /* ── SSM input panel ────────────────────────────────────── */
+  .ssm-info-text {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-top: 10px;
+    line-height: 1.55;
+    background: #f9fafb;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border-left: 3px solid #d1d5db;
+  }
+  .ssm-wt-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #fef3c7;
+    border: 1.5px solid #fcd34d;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #92400e;
+    font-family: 'Courier New', Courier, monospace;
+    margin-top: 8px;
+  }
+  .ssm-wt-badge.error {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #991b1b;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 500;
+  }
+
+  /* ── SSM overview block ─────────────────────────────────── */
+  .ssm-overview {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1.5px solid #86efac;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+  }
+  .ssm-overview-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #166534;
+    margin-bottom: 8px;
+  }
+  .ssm-overview-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: #374151;
+  }
+  .ssm-stat-num      { font-weight: 700; }
+  .ssm-stat-num.ok   { color: #166534; }
+  .ssm-stat-num.bad  { color: #991b1b; }
+
+  /* ── SSM summary table ──────────────────────────────────── */
+  .ssm-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  table.ssm-tbl {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.78rem;
+    min-width: 700px;
+  }
+  table.ssm-tbl thead tr { background: #1a6b3c; }
+  table.ssm-tbl th {
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  table.ssm-tbl td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  table.ssm-tbl tr.ssm-group-even { background: #fff; }
+  table.ssm-tbl tr.ssm-group-odd  { background: #f8fafc; }
+  table.ssm-tbl tr.ssm-row-err td { background: #fef2f2 !important; }
+  table.ssm-tbl tr.ssm-row-check td { background: #fffbeb !important; }
+  table.ssm-tbl td.ssm-aa {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    color: #1a6b3c;
+    white-space: nowrap;
+  }
+  table.ssm-tbl td.ssm-codon {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 600;
+    color: #374151;
+  }
+  table.ssm-tbl td.ssm-name {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.73rem;
+    white-space: nowrap;
+  }
+  table.ssm-tbl td.ssm-seq {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.72rem;
+    max-width: 230px;
+    word-break: break-all;
+  }
+  .ssm-dir-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.70rem;
+    font-weight: 700;
+  }
+  .ssm-dir-f { background: #dbeafe; color: #1d4ed8; }
+  .ssm-dir-r { background: #fce7f3; color: #be185d; }
+  .ssm-pass  { color: #166534; font-weight: 700; }
+  .ssm-fail  { color: #991b1b; font-weight: 700; }
+  .btn-ssm-copy {
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.68rem;
+    cursor: pointer;
+    color: #6b7280;
+    margin-left: 4px;
+    white-space: nowrap;
+  }
+  .btn-ssm-copy:hover { background: #f3f4f6; }
+  .btn-ssm-copy.copied { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+  /* ── SSM individual details toggle ─────────────────────── */
+  .btn-ssm-details {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    padding: 9px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    margin-bottom: 12px;
+    transition: background 0.15s;
+    display: block;
+  }
+  .btn-ssm-details:hover { background: #e5e7eb; }
 </style>
 </head>
 <body>
@@ -471,13 +640,36 @@
   <div class="card">
     <div class="step-header">
       <div class="step-badge">2</div>
-      <div class="step-title">Mutations</div>
+      <div class="step-title">Mutation Design</div>
     </div>
-    <div class="mut-buttons">
-      <button class="btn-add-dna" onclick="addDnaRow()">+ Add DNA Mutation</button>
-      <button class="btn-add-aa"  onclick="addAaRow()">+ Add AA Mutation</button>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-sdm" onclick="switchMode('sdm')">Standard SDM</button>
+      <button class="mode-tab" id="tab-ssm" onclick="switchMode('ssm')">Site Saturation Mutagenesis (SSM)</button>
     </div>
-    <div id="mut-list"></div>
+
+    <!-- SDM panel -->
+    <div id="sdm-panel">
+      <div class="mut-buttons">
+        <button class="btn-add-dna" onclick="addDnaRow()">+ Add DNA Mutation</button>
+        <button class="btn-add-aa"  onclick="addAaRow()">+ Add AA Mutation</button>
+      </div>
+      <div id="mut-list"></div>
+    </div>
+
+    <!-- SSM panel -->
+    <div id="ssm-panel" style="display:none;">
+      <div class="field-row">
+        <label class="field-label" for="ssm-pos">AA position to saturate (1-based):</label>
+        <input type="number" id="ssm-pos" min="1" placeholder="e.g. 100" style="width:110px;" oninput="updateSsmWtInfo()">
+      </div>
+      <div id="ssm-wt-display"></div>
+      <p class="ssm-info-text">
+        Detects the wild-type residue from the template and designs primers for all 19 possible amino acid substitutions at that position, using E. coli K-12 optimised codons.
+        CDS start position (set in Step 1) is used for the codon frame.
+      </p>
+    </div>
   </div>
 
   <!-- Step 3 -->
@@ -487,7 +679,7 @@
       <div class="step-title">Design Primers</div>
     </div>
     <div style="margin-top:16px;">
-      <button class="btn-design" id="btn-design" onclick="runDesign()">
+      <button class="btn-design" id="btn-design" onclick="dispatchDesign()">
         <div class="spinner" id="spinner"></div>
         <span id="btn-design-text">Design Primers</span>
       </button>
@@ -1071,6 +1263,9 @@ function readMutations(tmplStr, cdsStart) {
 //  RUN DESIGN
 // =========================================================
 let _lastResults = null;
+let _ssmResults  = null;
+let _activeMode  = 'sdm';
+let _resultMode  = null;
 
 function runDesign() {
   const btn = document.getElementById('btn-design');
@@ -1105,6 +1300,8 @@ function runDesign() {
   setTimeout(() => {
     try {
       _lastResults = null;
+      _resultMode  = 'sdm';
+      document.querySelector('#results-section .results-title').textContent = 'Results';
       const resultsBody = document.getElementById('results-body');
       resultsBody.innerHTML = '';
 
@@ -1447,6 +1644,7 @@ function flashCopied(btn) {
 //  DOWNLOAD TXT
 // =========================================================
 function downloadResults() {
+  if (_resultMode === 'ssm') { downloadSsmTxt(); return; }
   if (!_lastResults) return;
   const { tmplStr, geneName, mutations, allResults } = _lastResults;
   const lines = [];
@@ -1545,6 +1743,7 @@ function dumpValidationTxt(r, lines) {
 //  DOWNLOAD EXCEL
 // =========================================================
 function downloadExcel() {
+  if (_resultMode === 'ssm') { downloadSsmExcel(); return; }
   if (!_lastResults) return;
   const { tmplStr, geneName, mutations, allResults } = _lastResults;
 
@@ -1677,6 +1876,425 @@ function buildValidationRows(setLabel, mutLabel2, f, v, fn, rn) {
     [setLabel, mutLabel2, 'Rev 3\' non-overlap fl3_rev(' + (v?v.fl3:0) + ')-fl5_fwd(' + (f?f.fl5:0) + ')=' + rn + ' ≥8', ok(rn >= 8)],
     [],
   ];
+}
+
+// =========================================================
+//  MODE SWITCHING
+// =========================================================
+function switchMode(mode) {
+  _activeMode = mode;
+  document.getElementById('sdm-panel').style.display = mode === 'sdm' ? 'block' : 'none';
+  document.getElementById('ssm-panel').style.display = mode === 'ssm' ? 'block' : 'none';
+  document.getElementById('tab-sdm').classList.toggle('active', mode === 'sdm');
+  document.getElementById('tab-ssm').classList.toggle('active', mode === 'ssm');
+  document.getElementById('btn-design-text').textContent =
+    mode === 'ssm' ? 'Design All 19 SSM Primers' : 'Design Primers';
+  if (mode === 'ssm') updateSsmWtInfo();
+}
+
+function dispatchDesign() {
+  if (_activeMode === 'ssm') runSsmDesign();
+  else runDesign();
+}
+
+// =========================================================
+//  SSM – WT DETECTION PREVIEW
+// =========================================================
+function updateSsmWtInfo() {
+  const display = document.getElementById('ssm-wt-display');
+  const posVal = parseInt((document.getElementById('ssm-pos') || {}).value, 10);
+  if (!posVal || posVal < 1) { display.innerHTML = ''; return; }
+
+  try {
+    const raw = document.getElementById('tmpl-input').value;
+    const tmpl = validateDNA(raw);
+    const cdsStart = parseInt(document.getElementById('cds-start').value, 10) || 1;
+    const ntOffset = cdsStart + (posVal - 1) * 3 - 1;
+
+    if (ntOffset < 0 || ntOffset + 3 > tmpl.length) {
+      display.innerHTML = '<div class="ssm-wt-badge error">Position out of template range</div>';
+      return;
+    }
+
+    const codon = tmpl.slice(ntOffset, ntOffset + 3);
+    const aa    = translateCodon(codon);
+    if (aa === '*') {
+      display.innerHTML = '<div class="ssm-wt-badge error">Stop codon at this position</div>';
+      return;
+    }
+    display.innerHTML = '<div class="ssm-wt-badge">Wild-type at AA' + posVal + ': ' + codon + ' = ' + aa + ' (' + (AA_NAMES[aa] || '?') + ')</div>';
+  } catch(e) {
+    display.innerHTML = '<div class="ssm-wt-badge error">' + esc(e.message) + '</div>';
+  }
+}
+
+// =========================================================
+//  SSM – RUN DESIGN
+// =========================================================
+function runSsmDesign() {
+  let tmplStr;
+  try {
+    const raw = document.getElementById('tmpl-input').value;
+    tmplStr = validateDNA(raw);
+    if (tmplStr.length < 20) throw new Error('Template too short; please provide >= 20 bp.');
+  } catch(e) { alert('Template error: ' + e.message); return; }
+
+  const geneName = document.getElementById('gene-name').value.trim();
+  const cdsStart = parseInt(document.getElementById('cds-start').value, 10) || 1;
+  const aaPos    = parseInt((document.getElementById('ssm-pos') || {}).value, 10);
+
+  if (!aaPos || aaPos < 1) { alert('Please enter a valid AA position.'); return; }
+
+  let wtCodon, wtAa;
+  try {
+    const ntOffset = cdsStart + (aaPos - 1) * 3 - 1;
+    if (ntOffset < 0 || ntOffset + 3 > tmplStr.length)
+      throw new Error('AA position ' + aaPos + ' is outside the template.');
+    wtCodon = tmplStr.slice(ntOffset, ntOffset + 3);
+    wtAa = translateCodon(wtCodon);
+    if (wtAa === '*') throw new Error('Position ' + aaPos + ' encodes a stop codon.');
+    if (wtAa === '?') throw new Error('Codon "' + wtCodon + '" is not a standard codon.');
+  } catch(e) { alert('SSM error: ' + e.message); return; }
+
+  const btn     = document.getElementById('btn-design');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btn-design-text');
+  btn.disabled = true; spinner.style.display = 'block'; btnText.textContent = 'Designing...';
+
+  setTimeout(() => {
+    try {
+      const ALL_AAS = 'ACDEFGHIKLMNPQRSTVWY';
+      const ntPos   = cdsStart + (aaPos - 1) * 3;
+      const ssmList = [];
+      let passCount = 0, failCount = 0;
+
+      for (const targetAa of ALL_AAS) {
+        if (targetAa === wtAa) continue;
+
+        let entry;
+        try {
+          const newCodon  = bestEcoliCodon(targetAa);
+          const ranked    = ecoliCodonsRanked(targetAa);
+          const codonInfo = { aaPos, origAa: wtAa, newAa: targetAa, origCodon: wtCodon, newCodon, ranked, ntPos, cdsStart };
+
+          const r = designSingle(tmplStr, ntPos, wtCodon, newCodon);
+          r.codonInfo = codonInfo;
+
+          const fwdName = (geneName ? geneName + '_' : '') + wtAa + aaPos + targetAa + '_F';
+          const revName = (geneName ? geneName + '_' : '') + wtAa + aaPos + targetAa + '_R';
+          const pass    = !!(r.fwd && r.rev && r.nonoverlapOk && r.fwd.tm >= 78 && r.rev.tm >= 78);
+
+          entry = { targetAa, codonInfo, r, fwdName, revName, pass, success: true };
+          if (pass) passCount++; else failCount++;
+        } catch(e) {
+          entry = { targetAa, error: e.message, success: false };
+          failCount++;
+        }
+        ssmList.push(entry);
+      }
+
+      _ssmResults = { tmplStr, geneName, aaPos, wtAa, wtCodon, cdsStart, ssmList, passCount, failCount };
+      renderSsmResults();
+
+      document.getElementById('results-section').style.display = 'block';
+      document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch(e) {
+      alert('Unexpected error: ' + e.message);
+    } finally {
+      btn.disabled = false; spinner.style.display = 'none';
+      btnText.textContent = 'Design All 19 SSM Primers';
+    }
+  }, 20);
+}
+
+// =========================================================
+//  SSM – RENDER RESULTS
+// =========================================================
+function renderSsmResults() {
+  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList, passCount, failCount } = _ssmResults;
+  _resultMode = 'ssm';
+
+  document.querySelector('#results-section .results-title').textContent = 'Site Saturation Results';
+
+  const body = document.getElementById('results-body');
+  body.innerHTML = '';
+
+  // Overview card
+  const totalDesigned = ssmList.filter(e => e.success).length;
+  const errCount      = ssmList.filter(e => !e.success).length;
+  const checkCount    = totalDesigned - passCount;
+
+  const overview = document.createElement('div');
+  overview.className = 'ssm-overview';
+  overview.innerHTML = `
+    <div class="ssm-overview-title">Site Saturation Mutagenesis &mdash; ${esc(wtAa)}${aaPos} (${esc(AA_NAMES[wtAa] || wtAa)})</div>
+    <div class="ssm-overview-stats">
+      <div>Wild-type codon: <span class="ssm-stat-num">${esc(wtCodon)}</span></div>
+      <div>Designed: <span class="ssm-stat-num">${totalDesigned}</span> / 19</div>
+      <div>PASS: <span class="ssm-stat-num ok">${passCount}</span></div>
+      ${checkCount > 0 ? '<div>CHECK: <span class="ssm-stat-num bad">' + checkCount + '</span></div>' : ''}
+      ${errCount   > 0 ? '<div>ERROR: <span class="ssm-stat-num bad">' + errCount   + '</span></div>' : ''}
+    </div>`;
+  body.appendChild(overview);
+
+  // Summary table
+  const wrap = document.createElement('div');
+  wrap.className = 'ssm-table-wrap';
+
+  let html = `<table class="ssm-tbl">
+    <thead><tr>
+      <th>Target AA</th><th>Codon</th><th>Dir</th>
+      <th>Primer Name</th><th>Sequence (5'&rarr;3')</th>
+      <th>Len</th><th>Tm (°C)</th><th>%GC</th><th>Status</th>
+    </tr></thead><tbody>`;
+
+  ssmList.forEach((entry, gIdx) => {
+    const gc       = gIdx % 2 === 0 ? 'ssm-group-even' : 'ssm-group-odd';
+    const aaLabel  = entry.targetAa + ' (' + (AA_NAMES[entry.targetAa] || '?') + ')';
+
+    if (!entry.success) {
+      html += `<tr class="${gc} ssm-row-err">
+        <td class="ssm-aa">${esc(aaLabel)}</td><td>-</td><td>-</td>
+        <td colspan="4" style="color:#991b1b;font-size:0.77rem;">${esc(entry.error)}</td>
+        <td class="ssm-fail">ERROR</td></tr>`;
+      return;
+    }
+
+    const { codonInfo, r, fwdName, revName, pass } = entry;
+    const statusHtml = pass ? '<span class="ssm-pass">PASS</span>' : '<span class="ssm-fail">CHECK</span>';
+    const newCodon   = codonInfo.newCodon;
+
+    if (!r.fwd && !r.rev) {
+      html += `<tr class="${gc} ssm-row-check">
+        <td class="ssm-aa">${esc(aaLabel)}</td>
+        <td class="ssm-codon">${esc(newCodon)}</td>
+        <td>-</td>
+        <td colspan="4" style="color:#92400e;font-size:0.77rem;">
+          No primer pair found &mdash; provide &ge;30 nt flanking sequence on each side.</td>
+        <td class="ssm-fail">CHECK</td></tr>`;
+      return;
+    }
+
+    if (r.fwd) {
+      const fId = 'sfseq' + gIdx;
+      const tmOk = r.fwd.tm >= 78;
+      html += `<tr class="${gc}">
+        <td class="ssm-aa">${esc(aaLabel)}</td>
+        <td class="ssm-codon">${esc(newCodon)}</td>
+        <td><span class="ssm-dir-badge ssm-dir-f">F</span></td>
+        <td class="ssm-name">${esc(fwdName)}</td>
+        <td class="ssm-seq"><span id="${fId}">${esc(r.fwd.seq)}</span><button class="btn-ssm-copy" onclick="copySsmSeq('${fId}',this)">Copy</button></td>
+        <td>${r.fwd.len}</td>
+        <td class="${tmOk?'ssm-pass':'ssm-fail'}">${r.fwd.tm.toFixed(1)}</td>
+        <td>${r.fwd.gc.toFixed(1)}</td>
+        <td>${statusHtml}</td></tr>`;
+    }
+
+    if (r.rev) {
+      const rId = 'srseq' + gIdx;
+      const tmOk = r.rev.tm >= 78;
+      html += `<tr class="${gc}">
+        <td class="ssm-aa">${esc(aaLabel)}</td>
+        <td class="ssm-codon">${esc(newCodon)}</td>
+        <td><span class="ssm-dir-badge ssm-dir-r">R</span></td>
+        <td class="ssm-name">${esc(revName)}</td>
+        <td class="ssm-seq"><span id="${rId}">${esc(r.rev.seq)}</span><button class="btn-ssm-copy" onclick="copySsmSeq('${rId}',this)">Copy</button></td>
+        <td>${r.rev.len}</td>
+        <td class="${tmOk?'ssm-pass':'ssm-fail'}">${r.rev.tm.toFixed(1)}</td>
+        <td>${r.rev.gc.toFixed(1)}</td>
+        <td>${statusHtml}</td></tr>`;
+    }
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  body.appendChild(wrap);
+
+  // Collapsible individual cards
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'btn-ssm-details';
+  toggleBtn.id = 'ssm-details-btn';
+  toggleBtn.textContent = 'Show Individual Primer Details ▾';
+  toggleBtn.onclick = toggleSsmDetails;
+  body.appendChild(toggleBtn);
+
+  const detailsDiv = document.createElement('div');
+  detailsDiv.id = 'ssm-details-section';
+  detailsDiv.style.display = 'none';
+
+  ssmList.forEach((entry) => {
+    if (!entry.success) return;
+    detailsDiv.appendChild(buildSsmPrimerCard(entry, aaPos, wtAa));
+  });
+
+  body.appendChild(detailsDiv);
+}
+
+function toggleSsmDetails() {
+  const sec = document.getElementById('ssm-details-section');
+  const btn = document.getElementById('ssm-details-btn');
+  if (sec.style.display === 'none') {
+    sec.style.display = 'block';
+    btn.textContent = 'Hide Individual Primer Details ▴';
+  } else {
+    sec.style.display = 'none';
+    btn.textContent = 'Show Individual Primer Details ▾';
+  }
+}
+
+function buildSsmPrimerCard(entry, aaPos, wtAa) {
+  const { codonInfo, r, fwdName, revName } = entry;
+  const card = document.createElement('div');
+  card.className = 'primer-card';
+
+  const mutLabel2 = wtAa + aaPos + entry.targetAa +
+    ' (' + (AA_NAMES[wtAa] || wtAa) + ' → ' + (AA_NAMES[entry.targetAa] || entry.targetAa) + ')' +
+    '  |  ' + codonInfo.origCodon + ' → ' + codonInfo.newCodon;
+
+  card.innerHTML = `<div class="primer-card-header">
+    <div class="card-title">${esc(wtAa + aaPos + entry.targetAa)}</div>
+    <span class="mut-chip">${esc(mutLabel2)}</span>
+  </div>`;
+
+  const body = document.createElement('div');
+  body.className = 'primer-card-body';
+
+  const mutsArr = [{
+    ms: codonInfo.ntPos - 1,
+    me: codonInfo.ntPos - 1 + codonInfo.origCodon.length,
+    orig: codonInfo.origCodon,
+    newSeq: codonInfo.newCodon,
+  }];
+
+  body.appendChild(buildPrimerSection(r.fwd, "Forward Primer   5'→3'  (sense strand)",     true,  mutsArr, fwdName));
+  body.appendChild(buildPrimerSection(r.rev, "Reverse Primer   5'→3'  (antisense strand)", false, mutsArr, revName));
+  body.appendChild(buildValidation(r));
+  body.appendChild(buildCodonTable(codonInfo));
+  card.appendChild(body);
+  return card;
+}
+
+function copySsmSeq(spanId, btn) {
+  const span = document.getElementById(spanId);
+  if (!span) return;
+  copyText(span.textContent, btn);
+}
+
+// =========================================================
+//  SSM – DOWNLOAD TXT
+// =========================================================
+function downloadSsmTxt() {
+  if (!_ssmResults) return;
+  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList } = _ssmResults;
+  const lines = [];
+  const W = 68;
+  const sep  = '='.repeat(W);
+  const thin = '-'.repeat(W);
+
+  lines.push('SDM PRIMER DESIGNER – SITE SATURATION MUTAGENESIS');
+  lines.push('Generated: ' + new Date().toISOString());
+  if (geneName) lines.push('Gene: ' + geneName);
+  lines.push(sep);
+  lines.push('Site: AA' + aaPos + '  Wild-type: ' + wtAa + ' (' + (AA_NAMES[wtAa] || '?') + ')  Codon: ' + wtCodon);
+  lines.push('Template: ' + tmplStr.length + ' bp, GC ' + gcPct(tmplStr).toFixed(1) + '%');
+  lines.push('');
+
+  ssmList.forEach(entry => {
+    lines.push(sep);
+    if (!entry.success) {
+      lines.push(entry.targetAa + ' (' + (AA_NAMES[entry.targetAa] || '?') + '): ERROR - ' + entry.error);
+      return;
+    }
+    const { codonInfo, r, fwdName, revName, pass } = entry;
+    lines.push(
+      wtAa + aaPos + entry.targetAa +
+      '  (' + (AA_NAMES[wtAa] || '') + ' -> ' + (AA_NAMES[entry.targetAa] || '') + ')' +
+      '  Codon: ' + wtCodon + ' -> ' + codonInfo.newCodon +
+      '  Status: ' + (pass ? 'PASS' : 'CHECK')
+    );
+    dumpPrimerTxt(r.fwd, 'FORWARD', fwdName, lines, thin);
+    dumpPrimerTxt(r.rev, 'REVERSE', revName, lines, thin);
+    dumpValidationTxt(r, lines);
+    lines.push('');
+  });
+
+  const filename = (geneName || 'ssm') + '_AA' + aaPos + wtAa + '_ssm_primers.txt';
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =========================================================
+//  SSM – DOWNLOAD EXCEL
+// =========================================================
+function downloadSsmExcel() {
+  if (!_ssmResults) return;
+  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList } = _ssmResults;
+
+  // Sheet 1 – Primers
+  const primerRows = [
+    ['SDM Primer Designer – Site Saturation Mutagenesis'],
+    ['Generated', new Date().toLocaleString()],
+    ...(geneName ? [['Gene', geneName]] : []),
+    ['Site', 'AA' + aaPos + '  WT=' + wtAa + ' (' + (AA_NAMES[wtAa] || '') + ')  codon=' + wtCodon],
+    ['Template length (bp)', tmplStr.length],
+    ['Template %GC', gcPct(tmplStr).toFixed(1) + '%'],
+    [],
+    ['#', 'AA Change', 'New Codon', 'Direction', 'Primer Name', "Sequence (5'→3')", 'Length (bp)', 'Tm (°C)', '%GC', "5' Flank (nt)", "3' Flank (nt)", 'Template Start', 'Template End', 'Status'],
+  ];
+  const hdrIdx = primerRows.length - 1;
+  let n = 1;
+
+  ssmList.forEach(entry => {
+    const aaLabel = entry.targetAa + ' (' + (AA_NAMES[entry.targetAa] || '') + ')';
+    if (!entry.success) {
+      primerRows.push([n++, wtAa + aaPos + entry.targetAa, '-', '-', '-', 'ERROR: ' + entry.error, '', '', '', '', '', '', '', 'ERROR']);
+      return;
+    }
+    const { codonInfo, r, fwdName, revName, pass } = entry;
+    const aaChange = wtAa + aaPos + entry.targetAa;
+    const status   = pass ? 'PASS' : 'CHECK';
+    const newCodon = codonInfo.newCodon;
+
+    if (r.fwd) primerRows.push([n++, aaChange, newCodon, 'Forward', fwdName, r.fwd.seq, r.fwd.len, +r.fwd.tm.toFixed(2), +r.fwd.gc.toFixed(1), r.fwd.fl5, r.fwd.fl3, r.fwd.ts, r.fwd.te, status]);
+    if (r.rev) primerRows.push([n++, aaChange, newCodon, 'Reverse', revName, r.rev.seq, r.rev.len, +r.rev.tm.toFixed(2), +r.rev.gc.toFixed(1), r.rev.fl5, r.rev.fl3, r.rev.ts, r.rev.te, status]);
+    if (!r.fwd && !r.rev) primerRows.push([n++, aaChange, newCodon, '-', '-', 'Primer not found', '', '', '', '', '', '', '', 'CHECK']);
+  });
+
+  const ws1 = XLSX.utils.aoa_to_sheet(primerRows);
+  ws1['!cols'] = [
+    { wch: 4  }, { wch: 16 }, { wch: 10 }, { wch: 10 },
+    { wch: 28 }, { wch: 75 }, { wch: 12 }, { wch: 10 },
+    { wch: 8  }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 },
+  ];
+  ['A','B','C','D','E','F','G','H','I','J','K','L','M','N'].forEach(col => {
+    const cell = ws1[col + (hdrIdx + 1)];
+    if (cell) cell.s = { font: { bold: true }, fill: { fgColor: { rgb: 'D1FAE5' } } };
+  });
+
+  // Sheet 2 – Codon selection
+  const codonRows = [
+    ['SSM Codon Selection (E. coli K-12)'],
+    [],
+    ['AA Change', 'New AA', 'Selected Codon', 'Freq / 1000', 'All alternatives (codon  freq)'],
+  ];
+  ssmList.forEach(entry => {
+    if (!entry.success || !entry.codonInfo) return;
+    const ci   = entry.codonInfo;
+    const alts = ci.ranked.map(([c, f]) => c + ' ' + f.toFixed(1)).join('  |  ');
+    codonRows.push([wtAa + aaPos + entry.targetAa, entry.targetAa, ci.newCodon, +(ECOLI_CODON_FREQ[ci.newCodon] || 0).toFixed(1), alts]);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(codonRows);
+  ws2['!cols'] = [{ wch: 12 }, { wch: 8 }, { wch: 16 }, { wch: 14 }, { wch: 80 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws1, 'SSM Primers');
+  XLSX.utils.book_append_sheet(wb, ws2, 'Codon Selection');
+
+  const filename = (geneName || 'ssm') + '_AA' + aaPos + wtAa + '_ssm.xlsx';
+  XLSX.writeFile(wb, filename);
 }
 
 // =========================================================
