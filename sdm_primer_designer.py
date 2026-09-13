@@ -12,7 +12,8 @@ Design rules enforced:
 
 Amino acid mode:
   - Specify protein position + original AA + new AA
-  - Best codon selected by E. coli K-12 codon usage frequency
+  - Best codon selected by the chosen E. coli codon usage table
+    (K-12 MG1655 or B / BL21(DE3))
   - Primers named {Gene}_{Mut}_F / {Gene}_{Mut}_R (e.g. MaEgtB_G100A_F)
 
 Copyright (c) 2026 Yusik Kim, Korea University
@@ -24,6 +25,7 @@ Reference:
   Nucleic Acids Res. 32(14): e115.
 """
 
+import re
 import sys
 
 _COMP = str.maketrans("ATGCatgcNn", "TACGtacgNn")
@@ -54,9 +56,9 @@ CODON_TABLE = {
     "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G",
 }
 
-# E. coli K-12 codon usage (per 1000 codons)
-# Source: Codon Usage Database (Kazusa), E. coli K-12 MG1655
-ECOLI_CODON_FREQ = {
+# E. coli K-12 MG1655 codon usage (per 1000 codons)
+# Source: Kazusa Codon Usage Database -- "Escherichia coli K12 [gbbct]: 5054 CDS's (1603901 codons)"
+ECOLI_K12_CODON_FREQ = {
     "TTT": 22.0, "TTC": 17.4,
     "TTA": 14.1, "TTG": 13.6, "CTT": 11.8, "CTC": 10.4, "CTA":  3.6, "CTG": 52.4,
     "ATT": 29.0, "ATC": 25.1, "ATA":  7.5,
@@ -80,6 +82,56 @@ ECOLI_CODON_FREQ = {
     "GGT": 24.4, "GGC": 29.2, "GGA":  8.0, "GGG": 11.0,
 }
 
+# E. coli B (BL21 / BL21(DE3) lineage) codon usage (per 1000 codons)
+# Source: Kazusa Codon Usage Database -- "Escherichia coli B [gbbct]: 11 CDS's (3771 codons)"
+ECOLI_BL21_CODON_FREQ = {
+    "TTT": 28.9, "TTC": 18.8,
+    "TTA": 17.5, "TTG": 18.6, "CTT": 12.7, "CTC": 14.1, "CTA":  3.4, "CTG": 54.9,
+    "ATT": 33.9, "ATC": 31.0, "ATA":  5.0,
+    "ATG": 37.4,
+    "GTT": 19.6, "GTC": 14.3, "GTA": 10.6, "GTG": 33.9,
+    "TCT":  8.5, "TCC":  8.0, "TCA":  6.1, "TCG": 11.4, "AGT":  9.0, "AGC": 14.3,
+    "CCT":  5.8, "CCC":  2.4, "CCA":  7.4, "CCG": 24.9,
+    "ACT":  7.7, "ACC": 25.2, "ACA":  6.1, "ACG": 14.6,
+    "GCT": 13.8, "GCC": 25.5, "GCA": 19.6, "GCG": 32.6,
+    "TAT": 18.6, "TAC":  8.5,
+    "TAA":  1.9, "TAG":  0.3, "TGA":  0.8,
+    "CAT":  9.3, "CAC":  7.2,
+    "CAA": 13.5, "CAG": 24.7,
+    "AAT": 21.2, "AAC": 15.9,
+    "AAA": 29.2, "AAG":  8.8,
+    "GAT": 30.0, "GAC": 15.1,
+    "GAA": 29.4, "GAG": 18.0,
+    "TGT":  4.2, "TGC":  5.8,
+    "TGG": 12.7,
+    "CGT": 16.4, "CGC": 18.8, "CGA":  2.4, "CGG":  5.0, "AGA":  2.4, "AGG":  2.1,
+    "GGT": 24.4, "GGC": 33.1, "GGA":  8.2, "GGG": 14.3,
+}
+
+CODON_STRAINS = {
+    "k12":  {"label": "E. coli K-12 (MG1655)",
+             "freq": ECOLI_K12_CODON_FREQ,
+             "source": "Kazusa Codon Usage Database -- 5,054 CDS / 1,603,901 codons"},
+    "bl21": {"label": "E. coli B (BL21 / BL21(DE3))",
+             "freq": ECOLI_BL21_CODON_FREQ,
+             "source": "Kazusa Codon Usage Database -- 11 CDS / 3,771 codons (E. coli B)"},
+}
+_CODON_STRAIN = "k12"
+
+
+def set_codon_strain(key):
+    global _CODON_STRAIN
+    if key in CODON_STRAINS:
+        _CODON_STRAIN = key
+
+
+def current_codon_freq():
+    return CODON_STRAINS[_CODON_STRAIN]["freq"]
+
+
+def current_strain_label():
+    return CODON_STRAINS[_CODON_STRAIN]["label"]
+
 AA_NAMES = {
     "A": "Ala", "R": "Arg", "N": "Asn", "D": "Asp", "C": "Cys",
     "Q": "Gln", "E": "Glu", "G": "Gly", "H": "His", "I": "Ile",
@@ -95,10 +147,11 @@ def translate_codon(codon):
 
 
 def ecoli_codons_ranked(aa):
-    """All codons for aa, sorted by E. coli K-12 frequency descending."""
+    """All codons for aa, sorted by the current codon table's frequency descending."""
     aa = aa.upper()
+    freq = current_codon_freq()
     return sorted(
-        [(c, f) for c, f in ECOLI_CODON_FREQ.items() if CODON_TABLE.get(c) == aa],
+        [(c, f) for c, f in freq.items() if CODON_TABLE.get(c) == aa],
         key=lambda x: x[1],
         reverse=True,
     )
@@ -154,6 +207,8 @@ def aa_mutation_to_dna(template, aa_pos, orig_aa, new_aa, cds_start=1):
         "ranked":     ecoli_codons_ranked(new_aa),
         "nt_pos":     nt_pos,
         "cds_start":  cds_start,
+        "strain":       _CODON_STRAIN,
+        "strain_label": current_strain_label(),
     }
     return nt_pos, orig_codon, new_codon, info
 
@@ -475,9 +530,10 @@ def show(r, gene_name=""):
     print("  Mismatches: %d bp  (%%mismatch = %d/N x 100)" % (r["n_mm"], r["n_mm"]))
 
     if ci:
+        strain_label = ci.get("strain_label") or current_strain_label()
         print()
         print(thin)
-        print("  CODON SELECTION  (E. coli K-12 MG1655)")
+        print("  CODON SELECTION  (%s)" % strain_label)
         print(thin)
         print("  AA position : %d" % ci["aa_pos"])
         print("  Substitution: %s (%s)  -->  %s (%s)"
@@ -487,8 +543,8 @@ def show(r, gene_name=""):
         print("  CDS start   : nt %d  (codon at nt %d-%d)"
               % (ci["cds_start"], ci["nt_pos"], ci["nt_pos"] + 2))
         print()
-        print("  All codons for %s (%s) by E. coli K-12 frequency:"
-              % (ci["new_aa"], AA_NAMES.get(ci["new_aa"], "")))
+        print("  All codons for %s (%s) by %s frequency:"
+              % (ci["new_aa"], AA_NAMES.get(ci["new_aa"], ""), strain_label))
         for codon, freq in ci["ranked"]:
             tag = "  <-- selected" if codon == ci["new_codon"] else ""
             print("    %s   %5.1f / 1000%s" % (codon, freq, tag))
@@ -584,9 +640,10 @@ def show_combined(r, label="COMBINED PRIMER DESIGN", codon_infos=None, gene_name
         ci = codon_infos[i] if codon_infos else None
         aa_note = ""
         if ci:
-            aa_note = "  [AA%d %s->%s, codon %s->%s (E.coli K-12)]" % (
+            aa_note = "  [AA%d %s->%s, codon %s->%s (%s)]" % (
                 ci["aa_pos"], ci["orig_aa"], ci["new_aa"],
-                ci["orig_codon"], ci["new_codon"])
+                ci["orig_codon"], ci["new_codon"],
+                ci.get("strain_label") or current_strain_label())
         kind = ("SUB" if orig and new else "INS" if not orig else "DEL")
         print("    [%d] nt %d  %s  %s -> %s%s"
               % (i + 1, ms + 1, kind, orig or "(none)", new or "(none)", aa_note))
@@ -699,6 +756,7 @@ def show_ssm(results, gene_name, wt_aa, aa_pos, wt_codon, tmpl_len):
     print(sep)
     print("  Site     : AA%d  %s (%s)  wild-type codon: %s"
           % (aa_pos, wt_aa, AA_NAMES.get(wt_aa, "?"), wt_codon))
+    print("  Codon table : %s" % current_strain_label())
     print("  Template : %d bp" % tmpl_len)
     print("  Results  : %d PASS  /  %d CHECK  /  %d ERROR  (of 19)"
           % (pass_count, check_count, err_count))
@@ -810,6 +868,8 @@ def run_ssm(tmpl, cds_start, gene_name=""):
                 "ranked":     ecoli_codons_ranked(target_aa),
                 "nt_pos":     nt_pos,
                 "cds_start":  cds_start,
+                "strain":       _CODON_STRAIN,
+                "strain_label": current_strain_label(),
             }
             r = design(tmpl, nt_pos, wt_codon, new_codon)
             r["codon_info"] = codon_info
@@ -910,6 +970,14 @@ def run_batch(tmpl, cds_start, gene_name=""):
     print()
     print("  %d mutation%s collected." % (n, "s" if n > 1 else ""))
 
+    _show_batch_results(tmpl, collected, gene_name=gene_name)
+
+
+def _show_batch_results(tmpl, collected, gene_name=""):
+    """Print Individual Primer Pairs (+ Combined, if >=2) for a list of
+    (pos, orig, new, codon_info) mutation tuples."""
+    n = len(collected)
+
     print()
     print("=" * 68)
     print("  INDIVIDUAL PRIMER PAIRS  (%d)" % n)
@@ -942,6 +1010,92 @@ def run_batch(tmpl, cds_start, gene_name=""):
         print()
         print("  [COMBINED NOT POSSIBLE] %s" % e)
         print()
+
+
+# --------------------------- mutant list import -----------------------
+
+_AA_MUT_RE = re.compile(r"^([A-Za-z])-?(\d+)-?([A-Za-z])$")
+_VALID_AA_LETTERS = set("ACDEFGHIKLMNPQRSTVWY")
+
+
+def parse_aa_notation(token):
+    """Parse 'OrigAA+Position+NewAA' notation (e.g. 'A30G') -> (pos, orig, new),
+    or None if the token doesn't match / isn't a valid AA pair."""
+    token = token.strip()
+    if not token:
+        return None
+    m = _AA_MUT_RE.match(token)
+    if not m:
+        return None
+    orig, pos, new = m.group(1).upper(), int(m.group(2)), m.group(3).upper()
+    if pos < 1 or orig not in _VALID_AA_LETTERS or new not in _VALID_AA_LETTERS:
+        return None
+    return pos, orig, new
+
+
+def _tokenize_file(path):
+    with open(path, "r", encoding="utf-8-sig", errors="ignore") as f:
+        content = f.read()
+    return [t for t in re.split(r"[,;\s]+", content) if t]
+
+
+def run_import(tmpl, cds_start, gene_name=""):
+    print()
+    print("  Import Mutant List")
+    print("  Provide a plain-text or CSV file containing AA substitutions in")
+    print("  OrigAA+Position+NewAA notation (e.g. A30G = Ala30->Gly), one per")
+    print("  line or cell. Any other text/columns in the file are ignored.")
+    print("  Note: .xlsx is not supported here -- export the sheet to CSV first.")
+    print()
+
+    while True:
+        path = input("  File path > ").strip().strip('"')
+        if not path:
+            print("  Please enter a file path.")
+            continue
+        try:
+            tokens = _tokenize_file(path)
+        except OSError as e:
+            print("  Could not read file: %s" % e)
+            continue
+        break
+
+    seen = set()
+    parsed = []
+    for tok in tokens:
+        m = parse_aa_notation(tok)
+        if not m:
+            continue
+        key = m
+        if key in seen:
+            continue
+        seen.add(key)
+        parsed.append(m)
+
+    if not parsed:
+        print("  No mutations recognized in this file.")
+        print("  Expected notation: OrigAA + Position + NewAA per cell (e.g. A30G).")
+        return
+
+    print("  Found %d mutation(s): %s"
+          % (len(parsed), ", ".join("%s%d%s" % (o, p, n) for p, o, n in parsed)))
+
+    collected = []
+    for aa_pos, orig_aa, new_aa in parsed:
+        try:
+            pos, orig, new, ci = aa_mutation_to_dna(tmpl, aa_pos, orig_aa, new_aa, cds_start)
+            collected.append((pos, orig, new, ci))
+        except ValueError as e:
+            print("  [SKIPPED] %s%d%s: %s" % (orig_aa, aa_pos, new_aa, e))
+
+    if not collected:
+        print("  No mutations could be designed (all failed validation against the template).")
+        return
+
+    print()
+    print("  %d of %d mutation(s) validated against the template." % (len(collected), len(parsed)))
+
+    _show_batch_results(tmpl, collected, gene_name=gene_name)
 
 
 def run_once(tmpl, cds_start, gene_name=""):
@@ -1000,9 +1154,9 @@ def run_once(tmpl, cds_start, gene_name=""):
 def main():
     print()
     print("  +--------------------------------------------------+")
-    print("  |   SDM Double Primer Designer  v3                 |")
+    print("  |   SDM Double Primer Designer  v4                 |")
     print("  |   Tm = 81.5 + 0.41(%GC) - 675/N - %mismatch    |")
-    print("  |   AA mode: E. coli K-12 codon optimization      |")
+    print("  |   AA mode: E. coli K-12 / BL21 codon tables     |")
     print("  +--------------------------------------------------+")
 
     # -- template --
@@ -1048,18 +1202,28 @@ def main():
         except ValueError:
             print("  Enter a number.")
 
+    # -- codon usage table --
+    print()
+    print("Codon usage table (for AA mutations):")
+    print("  [1] E. coli K-12 (MG1655)              (default)")
+    print("  [2] E. coli B (BL21 / BL21(DE3))")
+    strain_choice = input("  Choose [1/2, default 1]: ").strip()
+    set_codon_strain("bl21" if strain_choice == "2" else "k12")
+    print("  Using: %s" % current_strain_label())
+
     # -- design mode --
     print()
     print("Design mode:")
     print("  [1] Single mutation")
     print("  [2] Multiple mutations (individual + combined primer sets)")
     print("  [3] Site Saturation Mutagenesis -- all 19 AA substitutions at one position")
+    print("  [4] Import mutant list from a file (AA substitutions, e.g. A30G)")
 
     while True:
-        mode = input("\n  Choose [1/2/3]: ").strip()
-        if mode in ("1", "2", "3"):
+        mode = input("\n  Choose [1/2/3/4]: ").strip()
+        if mode in ("1", "2", "3", "4"):
             break
-        print("  Please enter 1, 2, or 3.")
+        print("  Please enter 1, 2, 3, or 4.")
 
     if mode == "1":
         run_once(tmpl, cds_start, gene_name=gene_name)
@@ -1075,13 +1239,20 @@ def main():
             if ans not in ("y", "yes"):
                 break
             run_batch(tmpl, cds_start, gene_name=gene_name)
-    else:
+    elif mode == "3":
         run_ssm(tmpl, cds_start, gene_name=gene_name)
         while True:
             ans = input("Design SSM at another position on the same template? [y/N]: ").strip().lower()
             if ans not in ("y", "yes"):
                 break
             run_ssm(tmpl, cds_start, gene_name=gene_name)
+    else:
+        run_import(tmpl, cds_start, gene_name=gene_name)
+        while True:
+            ans = input("Import another mutant list file on the same template? [y/N]: ").strip().lower()
+            if ans not in ("y", "yes"):
+                break
+            run_import(tmpl, cds_start, gene_name=gene_name)
 
 
 if __name__ == "__main__":

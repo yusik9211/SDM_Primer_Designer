@@ -10,7 +10,7 @@ Given a template DNA sequence and desired mutations, it automatically designs fo
 | File | Description |
 |------|-------------|
 | `sdm_primer_designer.html` | **Web version (recommended, v5)** — open in browser, no installation; Excel/TXT download |
-| `sdm_primer_designer.py`   | **Python version (v3)** — run in terminal, requires Python 3 |
+| `sdm_primer_designer.py`   | **Python version (v5)** — run in terminal, requires Python 3 |
 
 Previous versions (v1, v2, v3, v4) are available in the [`legacy/`](legacy/) folder. See [Version History](#version-history) below for what changed in each.
 
@@ -89,13 +89,20 @@ Template DNA sequence: ATGCGT...    ← paste DNA sequence
 Gene name []:          MaEgtB       ← gene name (press Enter to skip)
 CDS start [1]:         1            ← CDS start position
 
+Codon usage table (for AA mutations):
+  [1] E. coli K-12 (MG1655)              (default)
+  [2] E. coli B (BL21 / BL21(DE3))
+Choose [1/2, default 1]: 1
+
 Design mode:
   [1] Single mutation
-  [2] Multiple mutations
-Choose [1/2]: 2
+  [2] Multiple mutations (individual + combined primer sets)
+  [3] Site Saturation Mutagenesis -- all 19 AA substitutions at one position
+  [4] Import mutant list from a file (AA substitutions, e.g. A30G)
+Choose [1/2/3/4]: 2
 ```
 
-#### Mutation Input Format
+#### Mutation Input Format (modes 1 & 2)
 ```
 # DNA mutation
 <position> <original> <new>
@@ -111,6 +118,10 @@ aa <aa_position> <orig_AA> <new_AA>
 aa 100 G A          → Gly100 → Ala
 aa 25 Y A           → Tyr25 → Ala
 ```
+
+#### Import Mutant List (mode 4)
+Enter the path to a plain-text or CSV file listing AA substitutions in **OrigAA + Position + NewAA** notation (e.g. `A30G` = Ala30→Gly), one per line or cell — any other text/columns are ignored. Each recognized mutation is designed as an independent primer pair (matching the HTML version's mutant-list upload), plus a combined pair if ≥ 2 mutations are found.
+> `.xlsx` files are not supported by the Python version (no external packages required) — export the sheet to CSV first.
 
 ---
 
@@ -155,14 +166,17 @@ The shortest primer pair satisfying all constraints is automatically selected.
 
 In AA mutation mode, the codon with the highest usage frequency (per 1,000 codons) among all synonymous codons for the target amino acid is automatically chosen.
 
-- **HTML version**: choose the **Codon usage table** in Step 2 before designing:
-  | Strain | Source |
-  |--------|--------|
-  | *E. coli* K-12 (MG1655) *(default)* | Kazusa Codon Usage Database — 5,054 CDS / 1,603,901 codons |
-  | *E. coli* B (BL21 / BL21(DE3)) | Kazusa Codon Usage Database, *E. coli* B — 11 CDS / 3,771 codons |
-  - The chosen table is recorded with each mutation's codon info, so downloaded TXT/Excel results always show which table was used.
-  - Note: the BL21 table is based on a much smaller CDS sample than K-12; codon calls agree for most amino acids but can differ for a few (e.g. Asn: K-12 favors AAC, BL21 favors AAT).
-- **Python version**: currently uses the *E. coli* K-12 table only.
+Both the HTML and Python versions let you choose the codon usage table before designing:
+
+| Strain | Source |
+|--------|--------|
+| *E. coli* K-12 (MG1655) *(default)* | Kazusa Codon Usage Database — 5,054 CDS / 1,603,901 codons |
+| *E. coli* B (BL21 / BL21(DE3)) | Kazusa Codon Usage Database, *E. coli* B — 11 CDS / 3,771 codons |
+
+- **HTML version**: pick it from the **Codon usage table** dropdown in Step 2.
+- **Python version**: pick it at the `Codon usage table` prompt (option `[1]`/`[2]`), right after the CDS start prompt.
+- The chosen table is recorded with each mutation's codon info, so downloaded TXT/Excel results (and CLI printouts) always show which table was used.
+- Note: the BL21 table is based on a much smaller CDS sample than K-12; codon calls agree for most amino acids but can differ for a few (e.g. Asn: K-12 favors AAC, BL21 favors AAT).
 - Click the **Codon selection** toggle in the HTML results panel to view all candidate codons and their frequencies.
 
 ---
@@ -197,7 +211,7 @@ In AA mutation mode, the codon with the highest usage frequency (per 1,000 codon
 | v2 | [legacy](legacy/sdm_primer_designer_v2.html) | [legacy](legacy/sdm_primer_designer_v2.py) | Multi-mutation support; no gene name field |
 | v3 | [legacy](legacy/sdm_primer_designer_v3.html) | [legacy](legacy/sdm_primer_designer_v3.py) | Gene naming, primer naming convention, Site Saturation Mutagenesis (SSM) mode |
 | v4 | [legacy](legacy/sdm_primer_designer_v4.html) | *(same as v3)* | Upload a mutant list (Excel/CSV) to batch-add AA mutations instead of entering them one by one |
-| v5 | [current](sdm_primer_designer.html) | *(same as v3)* | Selectable codon usage table for AA optimization — *E. coli* K-12 (MG1655) or B/BL21(DE3) |
+| v5 | [current](sdm_primer_designer.html) | [current](sdm_primer_designer.py) | Selectable codon usage table for AA optimization (*E. coli* K-12 or B/BL21(DE3)); Python version also gains a mutant-list file import mode (design mode `[4]`, same `OrigAA+Position+NewAA` notation as the HTML upload) |
 
 The root-level `sdm_primer_designer.html` / `sdm_primer_designer.py` always point to the latest version; older snapshots are preserved in [`legacy/`](legacy/) for reference.
 
