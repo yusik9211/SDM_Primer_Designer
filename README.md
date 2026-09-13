@@ -9,22 +9,22 @@ Given a template DNA sequence and desired mutations, it automatically designs fo
 
 | File | Description |
 |------|-------------|
-| `sdm_primer_designer.html` | **Web version (recommended)** — open in browser, no installation; Excel/TXT download |
-| `sdm_primer_designer.py`   | **Python version** — run in terminal, requires Python 3 |
+| `sdm_primer_designer.html` | **Web version (recommended, v4)** — open in browser, no installation; Excel/TXT download |
+| `sdm_primer_designer.py`   | **Python version (v3)** — run in terminal, requires Python 3 |
 
-Previous versions (v1, v2) are available in the [`legacy/`](legacy/) folder.
+Previous versions (v1, v2, v3) are available in the [`legacy/`](legacy/) folder. See [Version History](#version-history) below for what changed in each.
 
 ---
 
 ## Quick Start
 
 ### HTML version
-Open `sdm_primer_designer_v3.html` in your browser — no installation required.  
+Open `sdm_primer_designer.html` in your browser — no installation required.  
 (Internet connection required for Excel export via SheetJS CDN)
 
 ### Python version
 ```bash
-python sdm_primer_designer_v3.py
+python sdm_primer_designer.py
 ```
 Requires Python 3.6+. No external packages needed.
 
@@ -79,7 +79,7 @@ Instead of adding rows one by one, you can upload a spreadsheet listing all your
 ## Usage — Python Version
 
 ```
-python sdm_primer_designer_v3.py
+python sdm_primer_designer.py
 ```
 
 Follow the prompts in order:
@@ -179,6 +179,19 @@ In AA mutation mode, the codon with the highest usage frequency (per 1,000 codon
 - The template sequence should have **at least 30 nt of flanking sequence on each side** of the mutation site. Insufficient flanking may prevent a valid primer from being found.
 - In Combined mode with multiple mutations, overlapping mutation sites will cause design failure.
 - Excel download in the HTML version requires an internet connection (SheetJS CDN).
+
+---
+
+## Version History
+
+| Version | HTML | Python | Changes |
+|---------|:----:|:------:|---------|
+| v1 | [legacy](legacy/sdm_primer_designer_v1.html) | [legacy](legacy/sdm_primer_designer_v1.py) | Single mutation only |
+| v2 | [legacy](legacy/sdm_primer_designer_v2.html) | [legacy](legacy/sdm_primer_designer_v2.py) | Multi-mutation support; no gene name field |
+| v3 | [legacy](legacy/sdm_primer_designer_v3.html) | [legacy](legacy/sdm_primer_designer_v3.py) | Gene naming, primer naming convention, Site Saturation Mutagenesis (SSM) mode |
+| v4 | [current](sdm_primer_designer.html) | *(same as v3)* | Upload a mutant list (Excel/CSV) to batch-add AA mutations instead of entering them one by one |
+
+The root-level `sdm_primer_designer.html` / `sdm_primer_designer.py` always point to the latest version; older snapshots are preserved in [`legacy/`](legacy/) for reference.
 
 ---
 
