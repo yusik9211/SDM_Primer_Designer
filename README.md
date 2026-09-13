@@ -34,7 +34,7 @@ Requires Python 3.6+. No external packages needed.
 
 ### Step 1 — Enter Template DNA Sequence
 - Paste your template DNA sequence in the 5'→3' direction (A/T/G/C/N only)
-- Enter a **Gene name** (e.g. `MaEgtB`) — automatically reflected in primer names
+- Enter a **Gene name** (e.g. `GeneX`) — automatically reflected in primer names
 - Set the CDS start position (required for AA mutation mode; default = 1)
 
 ### Step 2 — Add Mutations
@@ -69,7 +69,7 @@ Instead of adding rows one by one, you can upload a spreadsheet listing all your
 - **Combined Primer Pair**: incorporates all mutations into a single primer pair (requires ≥ 2 mutations)
 
 ### Results and Download
-- Each primer is labeled with a name tag (e.g. `MaEgtB_G100A_F`)
+- Each primer is labeled with a name tag (e.g. `GeneX_G100A_F`)
 - A Validation Checklist confirms all design rules are satisfied
 - **Download TXT**: saves all results as a plain text file
 - **Download Excel**: exports primer name, sequence, Tm, and %GC to an Excel file
@@ -86,7 +86,7 @@ Follow the prompts in order:
 
 ```
 Template DNA sequence: ATGCGT...    ← paste DNA sequence
-Gene name []:          MaEgtB       ← gene name (press Enter to skip)
+Gene name []:          GeneX       ← gene name (press Enter to skip)
 CDS start [1]:         1            ← CDS start position
 
 Codon usage table (for AA mutations):
@@ -133,12 +133,12 @@ Enter the path to a plain-text or CSV file listing AA substitutions in **OrigAA 
 
 | Mutation type | Input example | Forward name | Reverse name |
 |---------------|--------------|--------------|--------------|
-| AA substitution | `aa 100 G A` | `MaEgtB_G100A_F` | `MaEgtB_G100A_R` |
-| Single nt substitution | `300 T A` | `MaEgtB_T300A_F` | `MaEgtB_T300A_R` |
-| Multi-nt substitution | `80 ATG CTG` | `MaEgtB_nt80ATGtoCTG_F` | `MaEgtB_nt80ATGtoCTG_R` |
-| Insertion | `45 - GAATTC` | `MaEgtB_nt45insGAATTC_F` | `MaEgtB_nt45insGAATTC_R` |
-| Deletion | `30 TGCA -` | `MaEgtB_nt30delTGCA_F` | `MaEgtB_nt30delTGCA_R` |
-| Multiple (combined) | G100A + L200P | `MaEgtB_G100A_L200P_F` | `MaEgtB_G100A_L200P_R` |
+| AA substitution | `aa 100 G A` | `GeneX_G100A_F` | `GeneX_G100A_R` |
+| Single nt substitution | `300 T A` | `GeneX_T300A_F` | `GeneX_T300A_R` |
+| Multi-nt substitution | `80 ATG CTG` | `GeneX_nt80ATGtoCTG_F` | `GeneX_nt80ATGtoCTG_R` |
+| Insertion | `45 - GAATTC` | `GeneX_nt45insGAATTC_F` | `GeneX_nt45insGAATTC_R` |
+| Deletion | `30 TGCA -` | `GeneX_nt30delTGCA_F` | `GeneX_nt30delTGCA_R` |
+| Multiple (combined) | G100A + L200P | `GeneX_G100A_L200P_F` | `GeneX_G100A_L200P_R` |
 
 If no gene name is provided, the format is shortened (e.g. `G100A_F`).
 
@@ -185,7 +185,7 @@ Both the HTML and Python versions let you choose the codon usage table before de
 
 ```
   FORWARD PRIMER   5'->3'  (sense strand)
-  Primer name : MaEgtB_G100A_F
+  Primer name : GeneX_G100A_F
   ----------------------------------------------------------------
   Sequence : 5'-GCCTGATCGTtGCCATGCGT-3'
   Length   : 20 bp     Tm: 79.34 degC     %GC: 55.0%

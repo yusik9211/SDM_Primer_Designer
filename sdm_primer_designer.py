@@ -14,7 +14,7 @@ Amino acid mode:
   - Specify protein position + original AA + new AA
   - Best codon selected by the chosen E. coli codon usage table
     (K-12 MG1655 or B / BL21(DE3))
-  - Primers named {Gene}_{Mut}_F / {Gene}_{Mut}_R (e.g. MaEgtB_G100A_F)
+  - Primers named {Gene}_{Mut}_F / {Gene}_{Mut}_R (e.g. GeneX_G100A_F)
 
 Copyright (c) 2026 Yusik Kim, Korea University
 Contact: yusik9211@korea.ac.kr
@@ -1178,7 +1178,7 @@ def main():
 
     # -- gene name --
     print()
-    print("Gene name (used for primer naming, e.g. MaEgtB; leave blank to skip):")
+    print("Gene name (used for primer naming, e.g. GeneX; leave blank to skip):")
     gene_name = input("  Gene name []: ").strip()
     if gene_name:
         print("  Gene: %s  (primers will be named %s_<mut>_F / %s_<mut>_R)"
