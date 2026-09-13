@@ -9,10 +9,10 @@ Given a template DNA sequence and desired mutations, it automatically designs fo
 
 | File | Description |
 |------|-------------|
-| `sdm_primer_designer.html` | **Web version (recommended, v4)** — open in browser, no installation; Excel/TXT download |
+| `sdm_primer_designer.html` | **Web version (recommended, v5)** — open in browser, no installation; Excel/TXT download |
 | `sdm_primer_designer.py`   | **Python version (v3)** — run in terminal, requires Python 3 |
 
-Previous versions (v1, v2, v3) are available in the [`legacy/`](legacy/) folder. See [Version History](#version-history) below for what changed in each.
+Previous versions (v1, v2, v3, v4) are available in the [`legacy/`](legacy/) folder. See [Version History](#version-history) below for what changed in each.
 
 ---
 
@@ -54,7 +54,7 @@ Select a mutation type and add entries. Multiple mutations can be entered at onc
 | Orig AA | Original amino acid (1-letter code) | `G` |
 | New AA | New amino acid (1-letter code) | `A` |
 
-> In AA mutation mode, the optimal codon is automatically selected based on *E. coli* K-12 MG1655 codon usage frequency.
+> In AA mutation mode, the optimal codon is automatically selected based on the chosen *E. coli* codon usage table (K-12 MG1655 or B/BL21(DE3) — see [Codon Optimization](#e-coli-codon-optimization)).
 
 #### Upload a Mutant List (Excel/CSV)
 Instead of adding rows one by one, you can upload a spreadsheet listing all your desired mutants at once:
@@ -155,8 +155,15 @@ The shortest primer pair satisfying all constraints is automatically selected.
 
 In AA mutation mode, the codon with the highest usage frequency (per 1,000 codons) among all synonymous codons for the target amino acid is automatically chosen.
 
-- Source: Codon Usage Database (Kazusa), *E. coli* K-12 MG1655
-- In the HTML version, click the **Codon selection** toggle in the results panel to view all candidate codons and their frequencies.
+- **HTML version**: choose the **Codon usage table** in Step 2 before designing:
+  | Strain | Source |
+  |--------|--------|
+  | *E. coli* K-12 (MG1655) *(default)* | Kazusa Codon Usage Database — 5,054 CDS / 1,603,901 codons |
+  | *E. coli* B (BL21 / BL21(DE3)) | Kazusa Codon Usage Database, *E. coli* B — 11 CDS / 3,771 codons |
+  - The chosen table is recorded with each mutation's codon info, so downloaded TXT/Excel results always show which table was used.
+  - Note: the BL21 table is based on a much smaller CDS sample than K-12; codon calls agree for most amino acids but can differ for a few (e.g. Asn: K-12 favors AAC, BL21 favors AAT).
+- **Python version**: currently uses the *E. coli* K-12 table only.
+- Click the **Codon selection** toggle in the HTML results panel to view all candidate codons and their frequencies.
 
 ---
 
@@ -189,7 +196,8 @@ In AA mutation mode, the codon with the highest usage frequency (per 1,000 codon
 | v1 | [legacy](legacy/sdm_primer_designer_v1.html) | [legacy](legacy/sdm_primer_designer_v1.py) | Single mutation only |
 | v2 | [legacy](legacy/sdm_primer_designer_v2.html) | [legacy](legacy/sdm_primer_designer_v2.py) | Multi-mutation support; no gene name field |
 | v3 | [legacy](legacy/sdm_primer_designer_v3.html) | [legacy](legacy/sdm_primer_designer_v3.py) | Gene naming, primer naming convention, Site Saturation Mutagenesis (SSM) mode |
-| v4 | [current](sdm_primer_designer.html) | *(same as v3)* | Upload a mutant list (Excel/CSV) to batch-add AA mutations instead of entering them one by one |
+| v4 | [legacy](legacy/sdm_primer_designer_v4.html) | *(same as v3)* | Upload a mutant list (Excel/CSV) to batch-add AA mutations instead of entering them one by one |
+| v5 | [current](sdm_primer_designer.html) | *(same as v3)* | Selectable codon usage table for AA optimization — *E. coli* K-12 (MG1655) or B/BL21(DE3) |
 
 The root-level `sdm_primer_designer.html` / `sdm_primer_designer.py` always point to the latest version; older snapshots are preserved in [`legacy/`](legacy/) for reference.
 

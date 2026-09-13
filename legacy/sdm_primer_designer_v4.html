@@ -112,18 +112,6 @@
   }
   .gene-input:focus { outline: none; border-color: #1a6b3c; }
 
-  /* Codon strain selector */
-  .codon-strain-select {
-    border: 1.5px solid #d1d5db;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 0.88rem;
-    color: #1a202c;
-    background: #fff;
-    cursor: pointer;
-  }
-  .codon-strain-select:focus { outline: none; border-color: #1a6b3c; }
-
   /* Primer name tag in results */
   .primer-name-tag {
     font-family: 'Courier New', Courier, monospace;
@@ -654,7 +642,7 @@
 
 <div class="header">
   <h1>🧬 SDM Primer Designer</h1>
-  <div class="subtitle">Tm = 81.5 + 0.41(%GC) &minus; 675/N &minus; %mismatch &nbsp;|&nbsp; E. coli K-12 / BL21 codon optimisation &nbsp;|&nbsp; Non-overlapping double-primer design</div>
+  <div class="subtitle">Tm = 81.5 + 0.41(%GC) &minus; 675/N &minus; %mismatch &nbsp;|&nbsp; E. coli K-12 codon optimisation &nbsp;|&nbsp; Non-overlapping double-primer design</div>
 </div>
 
 <div class="container">
@@ -687,14 +675,6 @@
       <div class="step-title">Mutation Design</div>
     </div>
 
-    <div class="field-row">
-      <label class="field-label" for="codon-strain">Codon usage table (for AA mutations):</label>
-      <select id="codon-strain" class="codon-strain-select" onchange="setCodonStrain(this.value)">
-        <option value="k12">E. coli K-12 (MG1655)</option>
-        <option value="bl21">E. coli B (BL21 / BL21(DE3))</option>
-      </select>
-    </div>
-
     <!-- Mode tabs -->
     <div class="mode-tabs">
       <button class="mode-tab active" id="tab-sdm" onclick="switchMode('sdm')">Standard SDM</button>
@@ -724,7 +704,7 @@
       </div>
       <div id="ssm-wt-display"></div>
       <p class="ssm-info-text">
-        Detects the wild-type residue from the template and designs primers for all 19 possible amino acid substitutions at that position, using codons optimised for the selected codon usage table above.
+        Detects the wild-type residue from the template and designs primers for all 19 possible amino acid substitutions at that position, using E. coli K-12 optimised codons.
         CDS start position (set in Step 1) is used for the codon frame.
       </p>
     </div>
@@ -786,8 +766,7 @@ const CODON_TABLE = {
   GGT:'G', GGC:'G', GGA:'G', GGG:'G',
 };
 
-// E. coli K-12 MG1655 -- Kazusa Codon Usage Database, "Escherichia coli K12 [gbbct]: 5054 CDS's (1603901 codons)"
-const ECOLI_K12_CODON_FREQ = {
+const ECOLI_CODON_FREQ = {
   TTT:22.0, TTC:17.4,
   TTA:14.1, TTG:13.6, CTT:11.8, CTC:10.4, CTA:3.6,  CTG:52.4,
   ATT:29.0, ATC:25.1, ATA:7.5,
@@ -810,45 +789,6 @@ const ECOLI_K12_CODON_FREQ = {
   CGT:20.6, CGC:22.3, CGA:3.6,  CGG:5.4,  AGA:2.1,  AGG:1.2,
   GGT:24.4, GGC:29.2, GGA:8.0,  GGG:11.0,
 };
-
-// E. coli B (BL21 / BL21(DE3) lineage) -- Kazusa Codon Usage Database, "Escherichia coli B [gbbct]: 11 CDS's (3771 codons)"
-const ECOLI_BL21_CODON_FREQ = {
-  TTT:28.9, TTC:18.8,
-  TTA:17.5, TTG:18.6, CTT:12.7, CTC:14.1, CTA:3.4,  CTG:54.9,
-  ATT:33.9, ATC:31.0, ATA:5.0,
-  ATG:37.4,
-  GTT:19.6, GTC:14.3, GTA:10.6, GTG:33.9,
-  TCT:8.5,  TCC:8.0,  TCA:6.1,  TCG:11.4, AGT:9.0,  AGC:14.3,
-  CCT:5.8,  CCC:2.4,  CCA:7.4,  CCG:24.9,
-  ACT:7.7,  ACC:25.2, ACA:6.1,  ACG:14.6,
-  GCT:13.8, GCC:25.5, GCA:19.6, GCG:32.6,
-  TAT:18.6, TAC:8.5,
-  TAA:1.9,  TAG:0.3,  TGA:0.8,
-  CAT:9.3,  CAC:7.2,
-  CAA:13.5, CAG:24.7,
-  AAT:21.2, AAC:15.9,
-  AAA:29.2, AAG:8.8,
-  GAT:30.0, GAC:15.1,
-  GAA:29.4, GAG:18.0,
-  TGT:4.2,  TGC:5.8,
-  TGG:12.7,
-  CGT:16.4, CGC:18.8, CGA:2.4,  CGG:5.0,  AGA:2.4,  AGG:2.1,
-  GGT:24.4, GGC:33.1, GGA:8.2,  GGG:14.3,
-};
-
-const CODON_STRAINS = {
-  k12:  { label: 'E. coli K-12 (MG1655)',       short: 'K-12',  freq: ECOLI_K12_CODON_FREQ,  source: 'Kazusa Codon Usage Database -- 5,054 CDS / 1,603,901 codons' },
-  bl21: { label: 'E. coli B (BL21 / BL21(DE3))', short: 'BL21',  freq: ECOLI_BL21_CODON_FREQ, source: 'Kazusa Codon Usage Database -- 11 CDS / 3,771 codons (E. coli B)' },
-};
-let _codonStrain = 'k12';
-
-function currentCodonFreq()  { return CODON_STRAINS[_codonStrain].freq; }
-function currentStrainLabel(){ return CODON_STRAINS[_codonStrain].label; }
-
-function setCodonStrain(key) {
-  if (!CODON_STRAINS[key]) return;
-  _codonStrain = key;
-}
 
 const AA_NAMES = {
   A:'Ala', R:'Arg', N:'Asn', D:'Asp', C:'Cys',
@@ -908,7 +848,7 @@ function translateCodon(codon) {
 function ecoliCodonsRanked(aa) {
   aa = aa.toUpperCase();
   const result = [];
-  for (const [codon, freq] of Object.entries(currentCodonFreq())) {
+  for (const [codon, freq] of Object.entries(ECOLI_CODON_FREQ)) {
     if (CODON_TABLE[codon] === aa) result.push([codon, freq]);
   }
   result.sort((a, b) => b[1] - a[1]);
@@ -953,7 +893,6 @@ function aaMutToDna(template, aaPos, origAa, newAa, cdsStart) {
     origCodon, newCodon,
     ranked: ecoliCodonsRanked(newAa),
     ntPos, cdsStart,
-    strain: _codonStrain, strainLabel: currentStrainLabel(),
   };
   return { ntPos, origCodon, newCodon, info };
 }
@@ -1767,7 +1706,7 @@ function buildCodonTable(ci, prefixLabel) {
 
   const toggle = document.createElement('button');
   toggle.className = 'codon-toggle';
-  const label = (prefixLabel||'') + 'Codon selection [' + (ci.strainLabel || currentStrainLabel()) + ']: ' + ci.origAa + ' (' + (AA_NAMES[ci.origAa]||'') + ') → ' + ci.newAa + ' (' + (AA_NAMES[ci.newAa]||'') + ')  ' + ci.origCodon + '→' + ci.newCodon;
+  const label = (prefixLabel||'') + 'Codon selection: ' + ci.origAa + ' (' + (AA_NAMES[ci.origAa]||'') + ') → ' + ci.newAa + ' (' + (AA_NAMES[ci.newAa]||'') + ')  ' + ci.origCodon + '→' + ci.newCodon;
   toggle.textContent = '▶ ' + label;
 
   const tableWrap = document.createElement('div');
@@ -1843,7 +1782,6 @@ function downloadResults() {
   lines.push('SDM PRIMER DESIGNER – RESULTS');
   lines.push('Generated: ' + new Date().toISOString());
   if (geneName) lines.push('Gene: ' + geneName);
-  if (mutations.some(m => m.type === 'aa')) lines.push('Codon table: ' + currentStrainLabel());
   lines.push(sep);
   lines.push('Template: ' + tmplStr.length + ' bp, GC ' + gcPct(tmplStr).toFixed(1) + '%');
   lines.push('');
@@ -1871,7 +1809,7 @@ function downloadResults() {
       lines.push(sep);
       if (r.codonInfo) {
         const ci = r.codonInfo;
-        lines.push('  Codon: ' + ci.origCodon + ' → ' + ci.newCodon + '  [' + (ci.strainLabel || currentStrainLabel()) + ']');
+        lines.push('  Codon: ' + ci.origCodon + ' → ' + ci.newCodon + '  [E.coli K-12]');
         ci.ranked.forEach(([c, f]) => lines.push('    ' + c + '  ' + f.toFixed(1) + (c===ci.newCodon?' <-- selected':'')));
         lines.push('');
       }
@@ -1937,14 +1875,12 @@ function downloadExcel() {
   const { tmplStr, geneName, mutations, allResults } = _lastResults;
 
   // ── Sheet 1: Primers ─────────────────────────────────────
-  const hasAaMut = mutations.some(m => m.type === 'aa');
   const primerRows = [
     ['SDM Primer Designer – Results'],
     ['Generated', new Date().toLocaleString()],
     ...(geneName ? [['Gene', geneName]] : []),
     ['Template length (bp)', tmplStr.length],
     ['Template %GC', gcPct(tmplStr).toFixed(1) + '%'],
-    ...(hasAaMut ? [['Codon table', currentStrainLabel()]] : []),
     [],
     ['#', 'Set', 'Mutation', 'Direction', 'Primer Name', "Sequence (5'→3')", 'Length (bp)', 'Tm (°C)', '%GC', "5' Flank (nt)", "3' Flank (nt)", 'Template Start', 'Template End', 'Validation'],
   ];
@@ -2019,9 +1955,9 @@ function downloadExcel() {
 
   // ── Codon Sheet (AA mutations only) ──────────────────────
   const codonRows = [
-    ['SDM Primer Designer – Codon Selection'],
+    ['SDM Primer Designer – Codon Selection (E. coli K-12)'],
     [],
-    ['Mutation', 'Orig AA', 'New AA', 'Codon (selected)', 'Freq/1000', 'Codon Table', 'Alternatives (codon | freq)'],
+    ['Mutation', 'Orig AA', 'New AA', 'Codon (selected)', 'Freq/1000', 'Alternatives (codon | freq)'],
   ];
   mutations.forEach((m) => {
     if (m.type === 'aa' && m.codonInfo) {
@@ -2030,11 +1966,10 @@ function downloadExcel() {
         .filter(([c]) => c !== ci.newCodon)
         .map(([c, f]) => c + ' ' + f.toFixed(1))
         .join('  |  ');
-      const strainInfo = CODON_STRAINS[ci.strain] || CODON_STRAINS[_codonStrain];
-      const selFreq = (strainInfo.freq[ci.newCodon] || 0).toFixed(1);
+      const selFreq = (ECOLI_CODON_FREQ[ci.newCodon] || 0).toFixed(1);
       codonRows.push([
         'AA' + ci.aaPos + ' ' + ci.origAa + '→' + ci.newAa,
-        ci.origAa, ci.newAa, ci.newCodon, +selFreq, ci.strainLabel || strainInfo.label, alts,
+        ci.origAa, ci.newAa, ci.newCodon, +selFreq, alts,
       ]);
     }
   });
@@ -2044,7 +1979,7 @@ function downloadExcel() {
   XLSX.utils.book_append_sheet(wb, ws2, 'Validation');
   if (codonRows.length > 3) {
     const ws3 = XLSX.utils.aoa_to_sheet(codonRows);
-    ws3['!cols'] = [{ wch: 16 }, { wch: 8 }, { wch: 8 }, { wch: 14 }, { wch: 12 }, { wch: 24 }, { wch: 60 }];
+    ws3['!cols'] = [{ wch: 16 }, { wch: 8 }, { wch: 8 }, { wch: 14 }, { wch: 12 }, { wch: 60 }];
     XLSX.utils.book_append_sheet(wb, ws3, 'Codons');
   }
 
@@ -2167,7 +2102,7 @@ function runSsmDesign() {
         try {
           const newCodon  = bestEcoliCodon(targetAa);
           const ranked    = ecoliCodonsRanked(targetAa);
-          const codonInfo = { aaPos, origAa: wtAa, newAa: targetAa, origCodon: wtCodon, newCodon, ranked, ntPos, cdsStart, strain: _codonStrain, strainLabel: currentStrainLabel() };
+          const codonInfo = { aaPos, origAa: wtAa, newAa: targetAa, origCodon: wtCodon, newCodon, ranked, ntPos, cdsStart };
 
           const r = designSingle(tmplStr, ntPos, wtCodon, newCodon);
           r.codonInfo = codonInfo;
@@ -2185,7 +2120,7 @@ function runSsmDesign() {
         ssmList.push(entry);
       }
 
-      _ssmResults = { tmplStr, geneName, aaPos, wtAa, wtCodon, cdsStart, ssmList, passCount, failCount, strainLabel: currentStrainLabel() };
+      _ssmResults = { tmplStr, geneName, aaPos, wtAa, wtCodon, cdsStart, ssmList, passCount, failCount };
       renderSsmResults();
 
       document.getElementById('results-section').style.display = 'block';
@@ -2203,7 +2138,7 @@ function runSsmDesign() {
 //  SSM – RENDER RESULTS
 // =========================================================
 function renderSsmResults() {
-  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList, passCount, failCount, strainLabel } = _ssmResults;
+  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList, passCount, failCount } = _ssmResults;
   _resultMode = 'ssm';
 
   document.querySelector('#results-section .results-title').textContent = 'Site Saturation Results';
@@ -2222,7 +2157,6 @@ function renderSsmResults() {
     <div class="ssm-overview-title">Site Saturation Mutagenesis &mdash; ${esc(wtAa)}${aaPos} (${esc(AA_NAMES[wtAa] || wtAa)})</div>
     <div class="ssm-overview-stats">
       <div>Wild-type codon: <span class="ssm-stat-num">${esc(wtCodon)}</span></div>
-      <div>Codon table: <span class="ssm-stat-num">${esc(strainLabel || currentStrainLabel())}</span></div>
       <div>Designed: <span class="ssm-stat-num">${totalDesigned}</span> / 19</div>
       <div>PASS: <span class="ssm-stat-num ok">${passCount}</span></div>
       ${checkCount > 0 ? '<div>CHECK: <span class="ssm-stat-num bad">' + checkCount + '</span></div>' : ''}
@@ -2378,7 +2312,7 @@ function copySsmSeq(spanId, btn) {
 // =========================================================
 function downloadSsmTxt() {
   if (!_ssmResults) return;
-  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList, strainLabel } = _ssmResults;
+  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList } = _ssmResults;
   const lines = [];
   const W = 68;
   const sep  = '='.repeat(W);
@@ -2387,7 +2321,6 @@ function downloadSsmTxt() {
   lines.push('SDM PRIMER DESIGNER – SITE SATURATION MUTAGENESIS');
   lines.push('Generated: ' + new Date().toISOString());
   if (geneName) lines.push('Gene: ' + geneName);
-  lines.push('Codon table: ' + (strainLabel || currentStrainLabel()));
   lines.push(sep);
   lines.push('Site: AA' + aaPos + '  Wild-type: ' + wtAa + ' (' + (AA_NAMES[wtAa] || '?') + ')  Codon: ' + wtCodon);
   lines.push('Template: ' + tmplStr.length + ' bp, GC ' + gcPct(tmplStr).toFixed(1) + '%');
@@ -2425,7 +2358,7 @@ function downloadSsmTxt() {
 // =========================================================
 function downloadSsmExcel() {
   if (!_ssmResults) return;
-  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList, strainLabel } = _ssmResults;
+  const { tmplStr, geneName, aaPos, wtAa, wtCodon, ssmList } = _ssmResults;
 
   // Sheet 1 – Primers
   const primerRows = [
@@ -2433,7 +2366,6 @@ function downloadSsmExcel() {
     ['Generated', new Date().toLocaleString()],
     ...(geneName ? [['Gene', geneName]] : []),
     ['Site', 'AA' + aaPos + '  WT=' + wtAa + ' (' + (AA_NAMES[wtAa] || '') + ')  codon=' + wtCodon],
-    ['Codon table', strainLabel || currentStrainLabel()],
     ['Template length (bp)', tmplStr.length],
     ['Template %GC', gcPct(tmplStr).toFixed(1) + '%'],
     [],
@@ -2471,16 +2403,15 @@ function downloadSsmExcel() {
 
   // Sheet 2 – Codon selection
   const codonRows = [
-    ['SSM Codon Selection – ' + (strainLabel || currentStrainLabel())],
+    ['SSM Codon Selection (E. coli K-12)'],
     [],
     ['AA Change', 'New AA', 'Selected Codon', 'Freq / 1000', 'All alternatives (codon  freq)'],
   ];
   ssmList.forEach(entry => {
     if (!entry.success || !entry.codonInfo) return;
-    const ci = entry.codonInfo;
-    const strainInfo = CODON_STRAINS[ci.strain] || CODON_STRAINS[_codonStrain];
+    const ci   = entry.codonInfo;
     const alts = ci.ranked.map(([c, f]) => c + ' ' + f.toFixed(1)).join('  |  ');
-    codonRows.push([wtAa + aaPos + entry.targetAa, entry.targetAa, ci.newCodon, +(strainInfo.freq[ci.newCodon] || 0).toFixed(1), alts]);
+    codonRows.push([wtAa + aaPos + entry.targetAa, entry.targetAa, ci.newCodon, +(ECOLI_CODON_FREQ[ci.newCodon] || 0).toFixed(1), alts]);
   });
   const ws2 = XLSX.utils.aoa_to_sheet(codonRows);
   ws2['!cols'] = [{ wch: 12 }, { wch: 8 }, { wch: 16 }, { wch: 14 }, { wch: 80 }];
