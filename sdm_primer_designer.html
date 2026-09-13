@@ -141,6 +141,38 @@
   .btn-add-dna:hover { background: #bfdbfe; }
   .btn-add-aa { background: #fce7f3; color: #be185d; }
   .btn-add-aa:hover { background: #fbcfe8; }
+  .btn-upload, .btn-template {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-upload { background: #fef3c7; color: #92400e; }
+  .btn-upload:hover { background: #fde68a; }
+  .btn-template { background: none; color: #6b7280; border: 1px solid #d1d5db !important; }
+  .btn-template:hover { background: #f3f4f6; }
+
+  .upload-info-text {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: -4px 0 12px;
+    line-height: 1.5;
+    background: #f9fafb;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border-left: 3px solid #d1d5db;
+  }
+  .upload-info-text code {
+    font-family: 'Courier New', Courier, monospace;
+    background: #eef2f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+    color: #1a6b3c;
+  }
 
   .mut-row {
     display: flex;
@@ -654,7 +686,13 @@
       <div class="mut-buttons">
         <button class="btn-add-dna" onclick="addDnaRow()">+ Add DNA Mutation</button>
         <button class="btn-add-aa"  onclick="addAaRow()">+ Add AA Mutation</button>
+        <button class="btn-upload" onclick="document.getElementById('mutant-file-input').click()">&#8593; Upload Mutant List (Excel/CSV)</button>
+        <input type="file" id="mutant-file-input" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleMutantFile(event)">
+        <button class="btn-template" onclick="downloadMutantTemplate()">Download template</button>
       </div>
+      <p class="upload-info-text">
+        Upload a spreadsheet listing your desired mutants, one AA substitution per row/cell in <strong>OrigAA + Position + NewAA</strong> notation (e.g. <code>A30G</code> = Ala30&rarr;Gly). Any column layout works &mdash; all matching cells are detected automatically. Each entry is added below as an independent AA mutation.
+      </p>
       <div id="mut-list"></div>
     </div>
 
@@ -1218,6 +1256,95 @@ function addAaRow(prefill) {
 function removeRow(id) {
   const el = document.getElementById('mut-row-' + id);
   if (el) el.remove();
+}
+
+// =========================================================
+//  MUTANT LIST UPLOAD (Excel/CSV)
+// =========================================================
+const AA_MUT_NOTATION_RE = /^([A-Za-z])\s*-?\s*(\d+)\s*-?\s*([A-Za-z])$/;
+const VALID_AA_LETTERS = 'ACDEFGHIKLMNPQRSTVWY';
+
+// Scans a value for "OrigAA<Position>NewAA" notation (e.g. "A30G").
+// Returns {pos, orig, new} or null if it doesn't match / isn't a valid AA pair.
+function parseAaNotation(raw) {
+  if (raw === null || raw === undefined) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  const m = s.match(AA_MUT_NOTATION_RE);
+  if (!m) return null;
+  const orig = m[1].toUpperCase();
+  const pos  = parseInt(m[2], 10);
+  const newAa = m[3].toUpperCase();
+  if (!VALID_AA_LETTERS.includes(orig) || !VALID_AA_LETTERS.includes(newAa)) return null;
+  if (!pos || pos < 1) return null;
+  return { pos, orig, new: newAa };
+}
+
+function handleMutantFile(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    let entries;
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true });
+
+      entries = [];
+      const seen = new Set();
+      rows.forEach(row => {
+        (row || []).forEach(cell => {
+          const parsed = parseAaNotation(cell);
+          if (!parsed) return;
+          const key = parsed.orig + parsed.pos + parsed.new;
+          if (seen.has(key)) return;
+          seen.add(key);
+          entries.push(parsed);
+        });
+      });
+    } catch (err) {
+      alert('Could not read file: ' + err.message);
+      return;
+    }
+
+    if (!entries.length) {
+      alert('No mutations recognized in this file.\n\nExpected notation: OrigAA + Position + NewAA in a single cell (e.g. A30G for Ala30→Gly).');
+      return;
+    }
+
+    const existing = document.querySelectorAll('#mut-list .mut-row');
+    if (existing.length) {
+      const replace = confirm(
+        'Found ' + entries.length + ' mutation(s) in the file.\n\n' +
+        'Click OK to replace the ' + existing.length + ' mutation row(s) already listed, ' +
+        'or Cancel to add these on top of them.'
+      );
+      if (replace) existing.forEach(el => el.remove());
+    }
+
+    entries.forEach(entry => addAaRow(entry));
+    alert('Loaded ' + entries.length + ' mutation(s) from "' + file.name + '".');
+  };
+  reader.onerror = () => alert('Could not read file: ' + file.name);
+  reader.readAsArrayBuffer(file);
+}
+
+function downloadMutantTemplate() {
+  const rows = [
+    ['Mutation'],
+    ['A30G'],
+    ['G100A'],
+    ['Y50F'],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 14 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Mutants');
+  XLSX.writeFile(wb, 'mutant_list_template.xlsx');
 }
 
 // =========================================================

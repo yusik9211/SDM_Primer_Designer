@@ -56,6 +56,14 @@ Select a mutation type and add entries. Multiple mutations can be entered at onc
 
 > In AA mutation mode, the optimal codon is automatically selected based on *E. coli* K-12 MG1655 codon usage frequency.
 
+#### Upload a Mutant List (Excel/CSV)
+Instead of adding rows one by one, you can upload a spreadsheet listing all your desired mutants at once:
+- Click **Upload Mutant List (Excel/CSV)** in Step 2 and select an `.xlsx`, `.xls`, or `.csv` file
+- Each mutant is written as **OrigAA + Position + NewAA** notation in a single cell, e.g. `A30G` (Ala30→Gly)
+- Any column/row layout works — every matching cell in the sheet is detected automatically
+- Each recognized mutation is added as an independent AA mutation row (its own primer pair; rows are **not** combined into one multi-mutation construct)
+- Click **Download template** for a ready-to-fill example file
+
 ### Step 3 — Click "Design Primers"
 - **Individual Primer Pairs**: designs an independent primer pair for each mutation
 - **Combined Primer Pair**: incorporates all mutations into a single primer pair (requires ≥ 2 mutations)
